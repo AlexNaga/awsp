@@ -13,13 +13,7 @@ const waitForRequestWithUrlPath = (page, urlPath) => page.waitForRequest((reques
 
 const getBrowserClipboard = (page) => page.evaluate(() => navigator.clipboard.readText());
 
-module.exports.browser = async ({ mfaCode, awsAccountId }) => {
-  const browser = await puppeteer.launch({ headless: true });
-  const context = browser.defaultBrowserContext();
-  context.overridePermissions(env.AWS_URL, ['clipboard-read']);
-  const page = await browser.newPage();
-  // await showBrowserLogs(page);
-  await page.goto(env.AWS_URL);
+const authenticate = async ({ page, mfaCode }) => {
   const microsoftLoginStatusUrl = 'https://login.microsoftonline.com/common/instrumentation/dssostatus'; // a static URL which is requested when we can input username and password
   const microsoftLoginEndUrl = 'https://login.microsoftonline.com/common/SAS/EndAuth'; // a static URL which is requested after we input the MFA code
   await page.waitForResponse(microsoftLoginStatusUrl);
@@ -41,10 +35,10 @@ module.exports.browser = async ({ mfaCode, awsAccountId }) => {
   await page.type(mfaInputSelector, mfaCode);
   await page.keyboard.press('Enter');
 
-  console.info('Fetching credentials...');
-
   await page.waitForResponse(microsoftLoginEndUrl);
+};
 
+const fetchCredentials = async ({ page, awsAccountId }) => {
   const loginBtnSelector = 'input[type="submit"]';
   await page.waitForSelector(loginBtnSelector);
   await page.keyboard.press('Enter');
@@ -85,9 +79,24 @@ module.exports.browser = async ({ mfaCode, awsAccountId }) => {
   await page.waitForSelector(copyCredentialsSelector);
   await page.click(copyCredentialsSelector);
 
-  const rawCredentials = await getBrowserClipboard(page);
+  return getBrowserClipboard(page);
+};
+
+module.exports.browser = async ({ mfaCode, awsAccountId }) => {
+  const browser = await puppeteer.launch({ headless: true });
+  const context = browser.defaultBrowserContext();
+  context.overridePermissions(env.AWS_URL, ['clipboard-read']); // allow clipboard access
+
+  const page = await browser.newPage();
+  // await showBrowserLogs(page);
+  await page.goto(env.AWS_URL);
+
+  console.info('Authenticating...');
+  await authenticate({ page, mfaCode });
+
+  console.info('Fetching credentials...');
+  const rawCredentials = await fetchCredentials({ page, awsAccountId });
 
   await browser.close();
-
   return { rawCredentials };
 };
