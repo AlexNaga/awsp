@@ -1,4 +1,4 @@
-# clockify-time-logger
+# awsp
 
 A script to switch between your AWS accounts.
 
