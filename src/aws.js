@@ -19,13 +19,20 @@ module.exports.getAwsProfile = (awsProfileName) => {
   const awsConfig = this.getAwsConfig();
   const awsProfile = awsConfig[`profile ${awsProfileName}`];
 
-  if (!awsProfile) throw new Error(`The AWS profile "${awsProfile}" couldn't be found in ${this.AWS_CONFIG_FILE_PATH}`);
+  if (!awsProfile)
+    throw new Error(`The AWS profile "${awsProfileName}" couldn't be found in ${this.AWS_CONFIG_FILE_PATH}`);
   return awsProfile;
 };
 
 module.exports.getAwsAccountId = (awsProfileName) => {
   const awsProfile = this.getAwsProfile(awsProfileName);
   return awsProfile.role_arn.split(':')[4];
+};
+
+module.exports.getAwsProfileName = () => {
+  const awsProfileName = process.argv[2];
+  if (!awsProfileName) throw new Error('You need to pass in an AWS config profile name.');
+  return awsProfileName;
 };
 
 module.exports.getAwsConfig = () => this.readIniFile(this.AWS_CONFIG_FILE_PATH);
