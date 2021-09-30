@@ -15,6 +15,19 @@ module.exports.formatAwsCredentials = (data) => {
 
 module.exports.readIniFile = (filePath) => ini.parse(fs.readFileSync(filePath, 'utf-8'));
 
+module.exports.getAwsProfile = (awsProfileName) => {
+  const awsConfig = this.getAwsConfig();
+  const awsProfile = awsConfig[`profile ${awsProfileName}`];
+
+  if (!awsProfile) throw new Error(`The AWS profile "${awsProfile}" couldn't be found in ${this.AWS_CONFIG_FILE_PATH}`);
+  return awsProfile;
+};
+
+module.exports.getAwsAccountId = (awsProfileName) => {
+  const awsProfile = this.getAwsProfile(awsProfileName);
+  return awsProfile.role_arn.split(':')[4];
+};
+
 module.exports.getAwsConfig = () => this.readIniFile(this.AWS_CONFIG_FILE_PATH);
 
 module.exports.getAwsCredentials = () => this.readIniFile(this.AWS_CREDENTIALS_FILE_PATH);
