@@ -1,0 +1,51 @@
+{
+  "name": "awsp",
+  "version": "1.0.0",
+  "description": "A script to switch between your AWS accounts",
+  "main": "main.js",
+  "files": [
+    "src/"
+  ],
+  "bin": {
+    "awsp": "src/main.js"
+  },
+  "scripts": {
+    "start": "node src/main.js",
+    "client": "node dist/main.js",
+    "client:debug": "npm run client -- --debug",
+    "postinstall": "cp -n .env.example .env || exit 0",
+    "lint": "eslint '*/**/*.{js,ts,tsx}'",
+    "lintfix": "eslint '*/**/*.{js,ts,tsx}' --fix",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexNaga/awsp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlexNaga/awsp/issues"
+  },
+  "homepage": "https://github.com/AlexNaga/awsp#readme",
+  "devDependencies": {
+    "husky": "^6.0.0",
+    "lint-staged": "^11.0.0",
+    "prettier": "^2.3.0"
+  },
+  "dependencies": {
+    "dotenv": "^9.0.2",
+    "eslint": "^7.26.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "ini": "^2.0.0",
+    "puppeteer": "^10.4.0"
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx}": [
+      "eslint --fix"
+    ],
+    "*.{js,css,md}": "prettier --write"
+  }
+}
