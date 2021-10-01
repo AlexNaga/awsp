@@ -15,7 +15,9 @@ const { browser } = require('./browser');
   try {
     const awsProfileName = getAwsProfileName();
     const awsAccountId = getAwsAccountId(awsProfileName);
-    const mfaCode = await getUserInput('Enter MFA code: ');
+
+    let mfaCode;
+    while (!mfaCode) mfaCode = await getUserInput('Enter MFA code: ');
 
     const { rawCredentials } = await browser({ mfaCode, awsAccountId });
 
