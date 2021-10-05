@@ -11,8 +11,6 @@
   },
   "scripts": {
     "start": "node src/main.js",
-    "client": "node dist/main.js",
-    "client:debug": "npm run client -- --debug",
     "postinstall": "cp -n .env.example .env || exit 0",
     "lint": "eslint '*/**/*.{js,ts,tsx}'",
     "lintfix": "eslint '*/**/*.{js,ts,tsx}' --fix",
@@ -40,7 +38,9 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
     "ini": "^2.0.0",
-    "puppeteer": "^10.4.0"
+    "puppeteer": "^10.4.0",
+    "puppeteer-extra": "^3.2.3",
+    "puppeteer-extra-plugin-block-resources": "^2.3.0"
   },
   "lint-staged": {
     "*.{js,ts,tsx}": [

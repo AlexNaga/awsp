@@ -1,5 +1,5 @@
 const { env } = process;
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-extra');
 
 const showBrowserLogs = (page) =>
   page.on('console', async (msg) => {
@@ -81,7 +81,15 @@ const fetchCredentials = async ({ page, awsAccountId }) => {
   return getBrowserClipboard(page);
 };
 
+const blockResources = (pptr) =>
+  pptr.use(
+    require('puppeteer-extra-plugin-block-resources')({
+      blockedTypes: new Set(['image', 'media', 'font', 'texttrack', 'eventsource', 'websocket', 'manifest']),
+    })
+  );
+
 module.exports.browser = async ({ mfaCode, awsAccountId }) => {
+  blockResources(puppeteer);
   const browser = await puppeteer.launch({ headless: true });
   const context = browser.defaultBrowserContext();
   context.overridePermissions(env.AWS_URL, ['clipboard-read']); // allow clipboard access
