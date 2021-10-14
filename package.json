@@ -11,6 +11,7 @@
   },
   "scripts": {
     "start": "node src/main.js",
+    "debug": "cross-env PPTR_DEBUG=true node src/main.js",
     "postinstall": "cp -n .env.example .env || exit 0",
     "lint": "eslint '*/**/*.{js,ts,tsx}'",
     "lintfix": "eslint '*/**/*.{js,ts,tsx}' --fix",
@@ -28,6 +29,7 @@
   },
   "homepage": "https://github.com/AlexNaga/awsp#readme",
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "husky": "^6.0.0",
     "lint-staged": "^11.0.0",
     "prettier": "^2.3.0"
