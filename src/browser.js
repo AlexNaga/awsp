@@ -88,22 +88,37 @@ const blockResources = (pptr) =>
     })
   );
 
-module.exports.browser = async ({ mfaCode, awsAccountId }) => {
-  blockResources(puppeteer);
-  const browser = await puppeteer.launch({ headless: true });
-  const context = browser.defaultBrowserContext();
-  context.overridePermissions(env.AWS_URL, ['clipboard-read']); // allow clipboard access
+class BrowserHandler {
+  constructor({ mfaCode, awsAccountId, debug = false }) {
+    this.mfaCode = mfaCode;
+    this.awsAccountId = awsAccountId;
+    this.debug = debug;
+  }
 
-  const page = await browser.newPage();
-  // await showBrowserLogs(page);
-  await page.goto(env.AWS_URL);
+  async init() {
+    blockResources(puppeteer);
+    this.browser = await puppeteer.launch({ headless: !this.debug });
+    const context = this.browser.defaultBrowserContext();
+    context.overridePermissions(env.AWS_URL, ['clipboard-read']); // allow clipboard access
 
-  console.info('Authenticating...');
-  await authenticate({ page, mfaCode });
+    this.page = await this.browser.newPage();
+    if (this.debug) await showBrowserLogs(this.page);
+    await this.page.goto(env.AWS_URL);
+  }
 
-  console.info('Fetching credentials...');
-  const rawCredentials = await fetchCredentials({ page, awsAccountId });
+  async authenticate() {
+    console.info('Authenticating...');
+    await authenticate({ page: this.page, mfaCode: this.mfaCode });
+  }
 
-  await browser.close();
-  return { rawCredentials };
-};
+  async fetchCredentials() {
+    console.info('Fetching credentials...');
+    return fetchCredentials({ page: this.page, awsAccountId: this.awsAccountId });
+  }
+
+  async close() {
+    await this.browser.close();
+  }
+}
+
+module.exports.BrowserHandler = BrowserHandler;
