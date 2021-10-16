@@ -12,6 +12,16 @@ const waitForRequestWithUrlPath = (page, urlPath) => page.waitForRequest((reques
 
 const getBrowserClipboard = (page) => page.evaluate(() => navigator.clipboard.readText());
 
+const isAuthenticated = async (page) => {
+  try {
+    await page.waitForNavigation({ waitUntil: 'networkidle0' });
+    const accountMenuSelector = 'portal-application';
+    return Boolean(await page.waitForSelector(accountMenuSelector, { timeout: 1000 }));
+  } catch (error) {
+    return false;
+  }
+};
+
 const authenticate = async ({ page, mfaCode }) => {
   const microsoftLoginStatusUrl = 'https://login.microsoftonline.com/common/instrumentation/dssostatus'; // a static URL which is requested when we can input username and password
   const microsoftLoginEndUrl = 'https://login.microsoftonline.com/common/SAS/EndAuth'; // a static URL which is requested after we input the MFA code
@@ -35,15 +45,15 @@ const authenticate = async ({ page, mfaCode }) => {
   await page.keyboard.press('Enter');
 
   await page.waitForResponse(microsoftLoginEndUrl);
-};
 
-const fetchCredentials = async ({ page, awsAccountId }) => {
   const loginBtnSelector = 'input[type="submit"]';
   await page.waitForSelector(loginBtnSelector);
   await page.keyboard.press('Enter');
 
   await page.waitForNavigation({ waitUntil: 'networkidle0' });
+};
 
+const fetchCredentials = async ({ page, awsAccountId }) => {
   const accountMenuSelector = 'portal-application';
   await page.waitForSelector(accountMenuSelector);
   await page.click(accountMenuSelector);
@@ -89,15 +99,14 @@ const blockResources = (pptr) =>
   );
 
 class BrowserHandler {
-  constructor({ mfaCode, awsAccountId, debug = false }) {
-    this.mfaCode = mfaCode;
+  constructor({ awsAccountId, debug = false }) {
     this.awsAccountId = awsAccountId;
     this.debug = debug;
   }
 
   async init() {
     blockResources(puppeteer);
-    this.browser = await puppeteer.launch({ headless: !this.debug });
+    this.browser = await puppeteer.launch({ headless: !this.debug, userDataDir: '.tmp' });
     const context = this.browser.defaultBrowserContext();
     context.overridePermissions(env.AWS_URL, ['clipboard-read']); // allow clipboard access
 
@@ -106,9 +115,14 @@ class BrowserHandler {
     await this.page.goto(env.AWS_URL);
   }
 
-  async authenticate() {
+  async isAuthenticated() {
+    console.info('Checking if authenticated...');
+    return isAuthenticated(this.page);
+  }
+
+  async authenticate(mfaCode) {
     console.info('Authenticating...');
-    await authenticate({ page: this.page, mfaCode: this.mfaCode });
+    await authenticate({ page: this.page, mfaCode });
   }
 
   async fetchCredentials() {

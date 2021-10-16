@@ -14,16 +14,20 @@ const { BrowserHandler } = require('./browser');
 
 (async () => {
   try {
+    console.time('pptr');
     const awsProfileName = getAwsProfileName();
     const awsAccountId = getAwsAccountId(awsProfileName);
     const debug = env.PPTR_DEBUG === 'true';
 
-    let mfaCode;
-    while (mfaCode?.length !== 6) mfaCode = await getUserInput('Enter MFA code: ');
-
-    const browser = new BrowserHandler({ mfaCode, awsAccountId, debug });
+    const browser = new BrowserHandler({ awsAccountId, debug });
     await browser.init();
-    await browser.authenticate();
+
+    if (!(await browser.isAuthenticated())) {
+      let mfaCode;
+      while (mfaCode?.length !== 6) mfaCode = await getUserInput('Enter MFA code: ');
+
+      await browser.authenticate(mfaCode);
+    }
 
     const rawCredentials = await browser.fetchCredentials();
     const credentials = formatAwsCredentials(rawCredentials);
@@ -32,6 +36,7 @@ const { BrowserHandler } = require('./browser');
     console.info(`Successfully set AWS credentials for profile "${awsProfileName}" to ${AWS_CREDENTIALS_FILE_PATH}`);
 
     await browser.close();
+    console.timeEnd('pptr');
   } catch (error) {
     console.error(error.message);
   }
