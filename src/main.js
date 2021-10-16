@@ -14,10 +14,10 @@ const { BrowserHandler } = require('./browser');
 
 (async () => {
   try {
-    console.time('pptr');
     const awsProfileName = getAwsProfileName();
     const awsAccountId = getAwsAccountId(awsProfileName);
     const debug = env.PPTR_DEBUG === 'true';
+    if (debug) console.time('debug-timer');
 
     const browser = new BrowserHandler({ awsAccountId, debug });
     await browser.init();
@@ -36,7 +36,7 @@ const { BrowserHandler } = require('./browser');
     console.info(`Successfully set AWS credentials for profile "${awsProfileName}" to ${AWS_CREDENTIALS_FILE_PATH}`);
 
     await browser.close();
-    console.timeEnd('pptr');
+    if (debug) console.timeEnd('debug-timer');
   } catch (error) {
     console.error(error.message);
   }
