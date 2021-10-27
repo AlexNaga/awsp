@@ -19,15 +19,13 @@ const { BrowserHandler } = require('./browser');
     const debug = env.PPTR_DEBUG === 'true';
     if (debug) console.time('debug-timer');
 
+    let mfaCode;
+    while (mfaCode?.length !== 6) mfaCode = await getUserInput('Enter MFA code: ');
+
     const browser = new BrowserHandler({ awsAccountId, debug });
     await browser.init();
 
-    if (!(await browser.isAuthenticated())) {
-      let mfaCode;
-      while (mfaCode?.length !== 6) mfaCode = await getUserInput('Enter MFA code: ');
-
-      await browser.authenticate(mfaCode);
-    }
+    await browser.authenticate(mfaCode);
 
     const rawCredentials = await browser.fetchCredentials();
     const credentials = formatAwsCredentials(rawCredentials);

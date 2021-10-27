@@ -27,6 +27,8 @@ const authenticate = async ({ page, mfaCode }) => {
   const microsoftLoginStatusUrl = 'https://login.microsoftonline.com/common/instrumentation/dssostatus'; // a static URL which is requested when we can input username and password
   const microsoftLoginEndUrl = 'https://login.microsoftonline.com/common/SAS/EndAuth'; // a static URL which is requested after we input the MFA code
 
+  await page.waitForResponse(microsoftLoginStatusUrl);
+
   const emailInputSelector = 'input[name="loginfmt"]';
   await page.waitForSelector(emailInputSelector);
   await page.type(emailInputSelector, env.USER_EMAIL);
@@ -106,7 +108,8 @@ class BrowserHandler {
 
   async init() {
     blockResources(puppeteer);
-    this.browser = await puppeteer.launch({ headless: !this.debug, userDataDir: `${path.join(__dirname, '../.tmp')}` });
+    // this.browser = await puppeteer.launch({ headless: !this.debug, userDataDir: `${path.join(__dirname, '../.tmp')}` });
+    this.browser = await puppeteer.launch({ headless: !this.debug });
     const context = this.browser.defaultBrowserContext();
     context.overridePermissions(env.AWS_URL, ['clipboard-read']); // allow clipboard access
 
