@@ -20,7 +20,7 @@ const { BrowserHandler } = require('./browser');
     if (debug) console.time('debug-timer');
 
     let mfaCode;
-    while (mfaCode?.length !== 6) mfaCode = await getUserInput('Enter MFA code: ');
+    while (!mfaCode && mfaCode.length !== 6) mfaCode = await getUserInput('Enter MFA code: ');
 
     const browser = new BrowserHandler({ awsAccountId, debug });
     await browser.init();
