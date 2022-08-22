@@ -24,33 +24,29 @@ const isAuthenticated = async (page) => {
 };
 
 const authenticate = async ({ page, mfaCode }) => {
-  const microsoftLoginStatusUrl = 'https://login.microsoftonline.com/common/instrumentation/dssostatus'; // a static URL which is requested when we can input username and password
-  const microsoftLoginEndUrl = 'https://login.microsoftonline.com/common/SAS/EndAuth'; // a static URL which is requested after we input the MFA code
+  const awsPreLoginUrl = 'https://eu-north-1.signin.aws/platform/api/execute'; // a static URL which is requested when we can input username and password
+  const awsLoginDoneUrl = 'https://portal.sso.eu-north-1.amazonaws.com/token/whoAmI'; // a static URL which is requested after we input the MFA code
 
-  await page.waitForResponse(microsoftLoginStatusUrl);
+  await page.waitForResponse(awsPreLoginUrl);
 
-  const emailInputSelector = 'input[name="loginfmt"]';
+  const emailInputSelector = '#username-input';
   await page.waitForSelector(emailInputSelector);
   await page.type(emailInputSelector, env.USER_EMAIL);
   await page.keyboard.press('Enter');
 
-  await page.waitForResponse(microsoftLoginStatusUrl);
+  await page.waitForResponse(awsPreLoginUrl);
 
-  const passwordInputSelector = 'input[name="passwd"]';
+  const passwordInputSelector = '#awsui-input-1';
   await page.waitForSelector(passwordInputSelector);
   await page.type(passwordInputSelector, env.USER_PASSWORD);
   await page.keyboard.press('Enter');
 
-  const mfaInputSelector = 'input[name="otc"]';
+  const mfaInputSelector = '#awsui-input-0';
   await page.waitForSelector(mfaInputSelector);
   await page.type(mfaInputSelector, mfaCode);
   await page.keyboard.press('Enter');
 
-  await page.waitForResponse(microsoftLoginEndUrl);
-
-  const loginBtnSelector = 'input[type="submit"]';
-  await page.waitForSelector(loginBtnSelector);
-  await page.keyboard.press('Enter');
+  await page.waitForResponse(awsLoginDoneUrl);
 
   await page.waitForNavigation({ waitUntil: 'networkidle0' });
 };
