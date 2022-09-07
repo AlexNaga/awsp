@@ -14,8 +14,9 @@ const { BrowserHandler } = require('./browser');
 
 (async () => {
   try {
-    const awsProfileName = getAwsProfileName();
+    const awsProfileName = await getAwsProfileName();
     const awsAccountId = getAwsAccountId(awsProfileName);
+
     const debug = env.PPTR_DEBUG === 'true';
     if (debug) console.time('debug-timer');
 

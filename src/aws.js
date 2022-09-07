@@ -1,6 +1,7 @@
 const fs = require('fs');
 const ini = require('ini');
 const homedir = require('os').homedir();
+const { renderList } = require('./input');
 
 module.exports.AWS_CONFIG_FILE_PATH = `${homedir}/.aws/config`;
 module.exports.AWS_CREDENTIALS_FILE_PATH = `${homedir}/.aws/credentials`;
@@ -29,10 +30,21 @@ module.exports.getAwsAccountId = (awsProfileName) => {
   return awsProfile.role_arn.split(':')[4];
 };
 
-module.exports.getAwsProfileName = () => {
-  const awsProfileName = process.argv[2];
-  if (!awsProfileName) throw new Error('You need to pass in an AWS config profile name.');
-  return awsProfileName;
+module.exports.getAwsProfiles = () => {
+  const awsConfig = this.getAwsConfig();
+  const rawProfiles = Object.keys(awsConfig);
+
+  const removeDefaultProfile = (profile) => profile !== 'default';
+  const cleanLeadingProfileTxt = (profile) => profile.replace('profile ', '');
+
+  const cleanProfiles = rawProfiles.filter(removeDefaultProfile).map(cleanLeadingProfileTxt).sort();
+  if (!cleanProfiles.length) throw new Error(`No AWS profiles found in ${this.AWS_CONFIG_FILE_PATH}`);
+  return cleanProfiles;
+};
+
+module.exports.getAwsProfileName = async () => {
+  const passedArg = process.argv[2];
+  return passedArg || renderList({ list: this.getAwsProfiles(), message: 'Select an AWS profile' });
 };
 
 module.exports.getAwsConfig = () => this.readIniFile(this.AWS_CONFIG_FILE_PATH);
