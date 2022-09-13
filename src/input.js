@@ -17,14 +17,9 @@ module.exports.getUserInput = (query) => {
 };
 
 module.exports.renderList = async ({ list, message }) => {
-  const choices = list.map((i) => ({ title: i }));
-
-  const searcher = new FuzzySearch(choices, ['title'], {
-    caseSensitive: false,
-  });
-
+  const searcher = new FuzzySearch(list, ['title'], { caseSensitive: false });
   const response = await prompts({
-    choices,
+    choices: list,
     message,
     name: 'value',
     suggest: (input) => searcher.search(input),

@@ -51,17 +51,32 @@ const authenticate = async ({ page, mfaCode }) => {
   await page.waitForNavigation({ waitUntil: 'networkidle0' });
 };
 
-const fetchCredentials = async ({ page, awsAccountId }) => {
-  const accountMenuSelector = 'portal-application';
-  await page.waitForSelector(accountMenuSelector);
-  await page.click(accountMenuSelector);
+const fetchAwsProfiles = async (page) => {
+  const profileMenuSelector = 'portal-application';
+  await page.waitForSelector(profileMenuSelector);
+  await page.click(profileMenuSelector);
 
-  const allAwsAccountsSelector = 'portal-instance';
-  await page.waitForSelector(allAwsAccountsSelector);
+  const profileListElem = 'portal-instance';
+  await page.waitForSelector(profileListElem);
+
+  // get all profile names and IDs
+  return page.$$eval(profileListElem, (profileList) =>
+    profileList.map((elem) => {
+      const profileName = elem.querySelector('.name').textContent;
+      const profileId = elem.querySelector('.accountId').textContent.replace('#', '');
+
+      return { profileName, profileId };
+    })
+  );
+};
+
+const fetchCredentials = async ({ page, awsAccountId }) => {
+  const profileListElem = 'portal-instance';
+  await page.waitForSelector(profileListElem);
 
   // click on matching account ID in list
   await page.$$eval(
-    `${allAwsAccountsSelector} .accountId`,
+    `${profileListElem} .accountId`,
     (accountsElem, awsAccountId) => {
       const accountElem = accountsElem.find((elem) => elem.textContent === `#${awsAccountId}`);
       if (!accountElem) throw new Error(`Account not found: ${awsAccountId}`);
@@ -97,8 +112,7 @@ const blockResources = (pptr) =>
   );
 
 class BrowserHandler {
-  constructor({ awsAccountId, debug = false }) {
-    this.awsAccountId = awsAccountId;
+  constructor({ debug = false }) {
     this.debug = debug;
   }
 
@@ -124,9 +138,14 @@ class BrowserHandler {
     await authenticate({ page: this.page, mfaCode });
   }
 
-  async fetchCredentials() {
+  async fetchAwsProfiles() {
+    console.info('Fetching AWS profiles...');
+    return fetchAwsProfiles(this.page);
+  }
+
+  async fetchCredentials(awsAccountId) {
     console.info('Fetching credentials...');
-    return fetchCredentials({ page: this.page, awsAccountId: this.awsAccountId });
+    return fetchCredentials({ page: this.page, awsAccountId });
   }
 
   async close() {

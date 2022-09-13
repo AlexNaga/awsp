@@ -2,21 +2,12 @@
 require('dotenv').config({ path: __dirname + '/../.env' });
 const { env } = process;
 
-const {
-  getAwsProfileName,
-  getAwsAccountId,
-  setAwsCredentials,
-  formatAwsCredentials,
-  AWS_CREDENTIALS_FILE_PATH,
-} = require('./aws');
+const { AWS_CREDENTIALS_FILE_PATH, formatAwsCredentials, selectAwsProfile, setAwsCredentials } = require('./aws');
 const { getUserInput } = require('./input');
 const { BrowserHandler } = require('./browser');
 
 (async () => {
   try {
-    const awsProfileName = await getAwsProfileName();
-    const awsAccountId = getAwsAccountId(awsProfileName);
-
     const debug = env.PPTR_DEBUG === 'true';
     if (debug) console.time('debug-timer');
 
@@ -25,16 +16,21 @@ const { BrowserHandler } = require('./browser');
       mfaCode = await getUserInput('Enter MFA code: ');
     }
 
-    const browser = new BrowserHandler({ awsAccountId, debug });
+    const browser = new BrowserHandler({ debug });
     await browser.init();
 
     await browser.authenticate(mfaCode);
 
-    const rawCredentials = await browser.fetchCredentials();
+    const profiles = await browser.fetchAwsProfiles();
+    const selectedProfile = await selectAwsProfile(profiles);
+
+    const rawCredentials = await browser.fetchCredentials(selectedProfile.profileId);
     const credentials = formatAwsCredentials(rawCredentials);
     setAwsCredentials(credentials);
 
-    console.info(`Successfully set AWS credentials for profile "${awsProfileName}" to ${AWS_CREDENTIALS_FILE_PATH}`);
+    console.info(
+      `Successfully set AWS credentials for profile "${selectedProfile.profileName}" to ${AWS_CREDENTIALS_FILE_PATH}`
+    );
 
     await browser.close();
     if (debug) console.timeEnd('debug-timer');
