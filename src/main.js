@@ -11,15 +11,18 @@ const { BrowserHandler } = require('./browser');
     const debug = env.PPTR_DEBUG === 'true';
     if (debug) console.time('debug-timer');
 
-    let mfaCode;
-    while (!mfaCode || mfaCode.length !== 6) {
-      mfaCode = await getUserInput('Enter MFA code: ');
-    }
-
     const browser = new BrowserHandler({ debug });
     await browser.init();
 
-    await browser.authenticate(mfaCode);
+    if (!(await browser.isAuthenticated())) {
+      let mfaCode;
+
+      while (!mfaCode || mfaCode.length !== 6) {
+        mfaCode = await getUserInput('Enter MFA code: ');
+      }
+
+      await browser.authenticate(mfaCode);
+    }
 
     const profiles = await browser.fetchAwsProfiles();
     const selectedProfile = await selectAwsProfile(profiles);

@@ -27,8 +27,6 @@ const authenticate = async ({ page, mfaCode }) => {
   const awsPreLoginUrl = 'https://eu-north-1.signin.aws/platform/api/execute'; // a static URL which is requested when we can input username and password
   const awsLoginDoneUrl = 'https://portal.sso.eu-north-1.amazonaws.com/token/whoAmI'; // a static URL which is requested after we input the MFA code
 
-  await page.waitForResponse(awsPreLoginUrl);
-
   const emailInputSelector = '#username-input';
   await page.waitForSelector(emailInputSelector);
   await page.type(emailInputSelector, env.USER_EMAIL);
@@ -118,8 +116,7 @@ class BrowserHandler {
 
   async init() {
     blockResources(puppeteer);
-    // this.browser = await puppeteer.launch({ headless: !this.debug, userDataDir: `${path.join(__dirname, '../.tmp')}` });
-    this.browser = await puppeteer.launch({ headless: !this.debug });
+    this.browser = await puppeteer.launch({ headless: !this.debug, userDataDir: `${path.join(__dirname, '../.tmp')}` });
     const context = this.browser.defaultBrowserContext();
     context.overridePermissions(env.AWS_URL, ['clipboard-read']); // allow clipboard access
 
