@@ -16,8 +16,8 @@ const getBrowserClipboard = (page) => page.evaluate(() => navigator.clipboard.re
 const isAuthenticated = async (page) => {
   try {
     await page.waitForNavigation({ waitUntil: 'networkidle0' });
-    const accountMenuSelector = 'portal-application';
-    return Boolean(await page.waitForSelector(accountMenuSelector, { timeout: 1000 }));
+    const profileMenuSelector = 'portal-application';
+    return Boolean(await page.waitForSelector(profileMenuSelector, { timeout: 1000 }));
   } catch (error) {
     return false;
   }
@@ -34,7 +34,7 @@ const authenticate = async ({ page, mfaCode }) => {
 
   await page.waitForResponse(awsPreLoginUrl);
 
-  const passwordInputSelector = '#awsui-input-1';
+  const passwordInputSelector = '#password-input';
   await page.waitForSelector(passwordInputSelector);
   await page.type(passwordInputSelector, env.USER_PASSWORD);
   await page.keyboard.press('Enter');
@@ -68,35 +68,31 @@ const fetchAwsProfiles = async (page) => {
   );
 };
 
-const fetchCredentials = async ({ page, awsAccountId }) => {
-  const profileListElem = 'portal-instance';
-  await page.waitForSelector(profileListElem);
+const fetchCredentials = async ({ page, awsProfileId }) => {
+  const profilesSelector = 'portal-instance';
+  await page.waitForSelector(profilesSelector);
 
-  // click on matching account ID in list
-  await page.$$eval(
-    `${profileListElem} .accountId`,
-    (accountsElem, awsAccountId) => {
-      const accountElem = accountsElem.find((elem) => elem.textContent === `#${awsAccountId}`);
-      if (!accountElem) throw new Error(`Account not found: ${awsAccountId}`);
-      accountElem.click();
+  // click on matching profile ID in list
+  page.$$eval(
+    `${profilesSelector} .accountId`,
+    (profilesElem, awsProfileId) => {
+      const profileElem = profilesElem.find((elem) => elem.textContent.includes(awsProfileId));
+
+      if (!profileElem) throw new Error(`Profile not found: ${awsProfileId}`);
+
+      profileElem.click();
     },
-    awsAccountId
+    awsProfileId
   );
 
-  await waitForRequestWithUrlPath(page, '/log'); // this makes sure that the data is loaded
-
-  // TODO: wait for this in a better way
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout('1000');
 
   const openCredentialsSelector = '#temp-credentials-button';
-  await page.waitForSelector(openCredentialsSelector);
+  await page.waitForSelector(openCredentialsSelector, { visible: true });
   await page.click(openCredentialsSelector);
 
-  // TODO: wait for this in a better way
-  await page.waitForTimeout(1000);
-
   const copyCredentialsSelector = '#hover-copy-env';
-  await page.waitForSelector(copyCredentialsSelector);
+  await page.waitForSelector(copyCredentialsSelector, { visible: true });
   await page.click(copyCredentialsSelector);
 
   return getBrowserClipboard(page);
@@ -140,9 +136,9 @@ class BrowserHandler {
     return fetchAwsProfiles(this.page);
   }
 
-  async fetchCredentials(awsAccountId) {
+  async fetchCredentials(awsProfileId) {
     console.info('Fetching credentials...');
-    return fetchCredentials({ page: this.page, awsAccountId });
+    return fetchCredentials({ page: this.page, awsProfileId });
   }
 
   async close() {
