@@ -14,6 +14,7 @@ const { BrowserHandler } = require('./browser');
     const browser = new BrowserHandler({ debug });
     await browser.init();
 
+    // check if active login session
     if (!(await browser.isAuthenticated())) {
       let mfaCode;
 

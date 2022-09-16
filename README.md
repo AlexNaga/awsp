@@ -1,6 +1,6 @@
 # awsp
 
-A script to switch between your AWS accounts.
+A script to switch between your AWS profiles.
 
 ### How to run?
 

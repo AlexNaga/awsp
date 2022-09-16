@@ -1,7 +1,7 @@
 {
   "name": "awsp",
   "version": "2.0.0",
-  "description": "A script to switch between your AWS accounts",
+  "description": "A script to switch between your AWS profiles",
   "main": "main.js",
   "files": [
     "src/"
