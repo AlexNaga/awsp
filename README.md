@@ -2,7 +2,7 @@
 
 A script to switch between your AWS profiles.
 
-### How to run?
+### How to install?
 
 #### 1. Install dependencies
 
@@ -14,13 +14,7 @@ npm i
 
 After install, change the example values in the file `.env`
 
-#### 3. Run script.
-
-```sh
-npm run start <aws_profile_name>
-```
-
-### How to install globally?
+#### 3. Install globally
 
 By linking it globally, it's possible to run command `awsp <aws_profile_name>` in the terminal.
 
