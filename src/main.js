@@ -30,7 +30,7 @@ const { BrowserHandler } = require('./browser');
 
     const rawCredentials = await browser.fetchCredentials(selectedProfile.profileId);
     const credentials = formatAwsCredentials(rawCredentials);
-    setAwsCredentials(credentials);
+    await setAwsCredentials(credentials);
 
     console.info(
       `Successfully set AWS credentials for profile "${selectedProfile.profileName}" to ${AWS_CREDENTIALS_FILE_PATH}`

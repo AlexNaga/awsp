@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('fs-extra');
 const ini = require('ini');
 const homedir = require('os').homedir();
 const { renderList } = require('./input');
@@ -15,10 +15,18 @@ module.exports.formatAwsCredentials = (data) => {
 
 module.exports.readIniFile = (filePath) => ini.parse(fs.readFileSync(filePath, 'utf-8'));
 
-module.exports.getAwsCredentials = () => this.readIniFile(this.AWS_CREDENTIALS_FILE_PATH);
+module.exports.getAwsCredentials = async () => {
+  await fs.ensureFile(this.AWS_CREDENTIALS_FILE_PATH);
+  this.readIniFile(this.AWS_CREDENTIALS_FILE_PATH);
+};
 
-module.exports.setAwsCredentials = ({ accessKeyId, secretAccessKey, sessionToken }) => {
-  const awsCredentials = this.getAwsCredentials();
+module.exports.setAwsCredentials = async ({ accessKeyId, secretAccessKey, sessionToken }) => {
+  let awsCredentials = await this.getAwsCredentials();
+
+  if (!awsCredentials?.default) {
+    awsCredentials = { default: {} };
+  }
+
   awsCredentials.default.aws_access_key_id = accessKeyId;
   awsCredentials.default.aws_secret_access_key = secretAccessKey;
   awsCredentials.default.aws_session_token = sessionToken;
