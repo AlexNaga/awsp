@@ -1,8 +1,8 @@
-const readline = require('readline');
-const prompts = require('prompts');
-const FuzzySearch = require('fuzzy-search');
+import readline from 'readline';
+import prompts, { Choice } from 'prompts';
+import FuzzySearch from 'fuzzy-search';
 
-module.exports.getUserInput = (query) => {
+export const getUserInput = async (query: string): Promise<string> => {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -16,13 +16,13 @@ module.exports.getUserInput = (query) => {
   );
 };
 
-module.exports.renderList = async ({ list, message }) => {
+export const renderList = async (list: Choice[], message: string) => {
   const searcher = new FuzzySearch(list, ['title'], { caseSensitive: false });
   const response = await prompts({
     choices: list,
     message,
     name: 'value',
-    suggest: (input) => searcher.search(input),
+    suggest: async (input: string) => searcher.search(input),
     type: 'autocomplete',
   });
 

@@ -16,7 +16,7 @@ After install, change the example values in the file `.env`
 
 #### 3. Install globally
 
-By linking it globally, it's possible to run command `awsp <aws_profile_name>` in the terminal.
+By linking it globally, it's possible to run command `awsp` in the terminal.
 
 ```sh
 npm link
