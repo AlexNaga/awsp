@@ -29,7 +29,7 @@ const authenticate = async (page: Page, mfaCode: string) => {
   await page.keyboard.press('Enter');
 };
 
-const fetchAwsProfiles = async (page: Page) => {
+const fetchAwsProfiles = async (page: Page): Promise<AwsProfile[]> => {
   await page.locator('portal-application').click();
   await page.locator('sso-expander').isVisible();
 
@@ -40,6 +40,9 @@ const fetchAwsProfiles = async (page: Page) => {
     profileList.map(async (elem) => {
       const profileName = await (await elem.$('.name'))?.textContent();
       const profileId = (await (await elem.$('.accountId'))?.textContent())?.replace('#', '');
+
+      if (!profileName) throw new Error('Error: profileName is not defined');
+      if (!profileId) throw new Error('Error: profileId is not defined');
 
       return { profileName, profileId };
     })
@@ -100,7 +103,7 @@ export class BrowserHandler {
 
   async fetchAwsProfiles() {
     console.info('Fetching AWS profiles...');
-    return fetchAwsProfiles(this.page) as unknown as AwsProfile[];
+    return fetchAwsProfiles(this.page);
   }
 
   async fetchCredentials(awsProfileId: string): Promise<Credentials> {
