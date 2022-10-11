@@ -18,7 +18,7 @@ import { BrowserHandler } from './browser';
   await setAwsCredentials(credentials);
 
   console.info(
-    `Successfully set AWS credentials for profile "${selectedProfile.profileName}" to ${AWS_CREDENTIALS_FILE_PATH}`
+    `\nSuccessfully set AWS credentials for profile "${selectedProfile.profileName}" to ${AWS_CREDENTIALS_FILE_PATH}`
   );
 
   await browser.close();
