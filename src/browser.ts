@@ -101,6 +101,8 @@ export class BrowserHandler {
 
     while (!mfaCode || mfaCode.length !== 6) {
       mfaCode = await getUserInput('Enter MFA code: ');
+
+      if (mfaCode.length !== 6) console.warn('MFA code is not 6 chars long.');
     }
 
     const authSpinner = createSpinner('Authenticating.').start();
