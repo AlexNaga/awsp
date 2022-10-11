@@ -5,6 +5,7 @@ import { formatAwsCredentials } from './aws';
 import { getUserInput } from './input';
 import { AwsProfile } from './models/AwsProfile';
 import { Credentials } from './models/Credentials';
+import { createSpinner } from 'nanospinner';
 
 const { env } = process;
 
@@ -83,33 +84,43 @@ export class BrowserHandler {
   }
 
   async isAuthenticated() {
-    console.info('Checking if authenticated...');
     return isAuthenticated(this.page);
   }
 
   async authenticate() {
+    const authCheckSpinner = createSpinner('Checking if authenticated.').start();
+
     // check if active login session
-    if (!(await this.isAuthenticated())) {
-      let mfaCode = '';
-
-      while (!mfaCode || mfaCode.length !== 6) {
-        mfaCode = await getUserInput('Enter MFA code: ');
-      }
-
-      console.info('Authenticating...');
-      await authenticate(this.page, mfaCode);
+    if (await this.isAuthenticated()) {
+      authCheckSpinner.success();
+      return;
     }
+
+    let mfaCode = '';
+    authCheckSpinner.warn();
+
+    while (!mfaCode || mfaCode.length !== 6) {
+      mfaCode = await getUserInput('Enter MFA code: ');
+    }
+
+    const authSpinner = createSpinner('Authenticating.').start();
+    await authenticate(this.page, mfaCode);
+    authSpinner.success();
   }
 
   async fetchAwsProfiles() {
-    console.info('Fetching AWS profiles...');
-    return fetchAwsProfiles(this.page);
+    const spinner = createSpinner('Fetching AWS profiles.').start();
+    const profiles = await fetchAwsProfiles(this.page);
+    spinner.success();
+    return profiles;
   }
 
   async fetchCredentials(awsProfileId: string): Promise<Credentials> {
-    console.info('Fetching credentials...');
+    const spinner = createSpinner('Fetching credentials.').start();
     const rawCredentials = await fetchCredentials(this.page, awsProfileId);
-    return formatAwsCredentials(rawCredentials);
+    const credentials = formatAwsCredentials(rawCredentials);
+    spinner.success();
+    return credentials;
   }
 
   async close() {
