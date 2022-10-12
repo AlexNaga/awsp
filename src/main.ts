@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 import * as dotenv from 'dotenv';
-import { AWS_CREDENTIALS_FILE_PATH, selectAwsProfile, setAwsCredentials } from './aws';
 dotenv.config({ path: __dirname + '/../.env' });
 const { env } = process;
+const isDebug = Boolean(env.DEBUG);
 
-import { BrowserHandler } from './browser';
+import { Browser } from './browser';
+import { AWS_CREDENTIALS_FILE_PATH, selectAwsProfile, setAwsCredentials } from './aws';
 
 (async () => {
-  const browser = new BrowserHandler(Boolean(env.DEBUG));
+  const browser = new Browser(isDebug);
   await browser.init();
   await browser.authenticate();
 

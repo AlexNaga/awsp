@@ -9,6 +9,9 @@ import { createSpinner } from 'nanospinner';
 
 const { env } = process;
 
+const blockedResourceTypes = ['stylesheet', 'image', 'media', 'font'];
+const blockedFileExtensions = ['.ico', '.css', '.jpg', '.jpeg', '.png', '.svg', '.woff'];
+
 const getBrowserClipboard = (page: Page) => page.evaluate(() => navigator.clipboard.readText());
 
 const isAuthenticated = async (page: Page) => {
@@ -63,7 +66,7 @@ const fetchCredentials = async (page: Page, awsProfileId: string) => {
   return getBrowserClipboard(page);
 };
 
-export class BrowserHandler {
+export class Browser {
   debug = false;
   browser!: BrowserContext;
   page!: Page;
@@ -80,6 +83,18 @@ export class BrowserHandler {
     this.browser.grantPermissions(['clipboard-read'], { origin: env.AWS_URL });
 
     this.page = await this.browser.newPage();
+
+    // block resources to speed up things
+    await this.page.route('**/*', (route) => {
+      if (blockedResourceTypes.includes(route.request().resourceType())) {
+        route.abort();
+      } else if (blockedFileExtensions.some((ext) => route.request().url().includes(ext))) {
+        route.abort();
+      } else {
+        route.continue();
+      }
+    });
+
     await this.page.goto(env.AWS_URL);
   }
 
