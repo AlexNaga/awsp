@@ -6,6 +6,7 @@ import { getUserInput } from './input';
 import { AwsProfile } from './models/AwsProfile';
 import { Credentials } from './models/Credentials';
 import { createSpinner } from 'nanospinner';
+import { getRandomLoadingMessage } from './data/loading-messages';
 
 const { env } = process;
 
@@ -76,6 +77,7 @@ export class Browser {
   }
 
   async init() {
+    const spinner = createSpinner(getRandomLoadingMessage()).start();
     const userDataDir = `${path.join(__dirname, '../.tmp')}`;
     this.browser = await chromium.launchPersistentContext(userDataDir, { headless: !this.debug });
 
@@ -96,6 +98,7 @@ export class Browser {
     });
 
     await this.page.goto(env.AWS_URL);
+    spinner.success();
   }
 
   async isAuthenticated() {
