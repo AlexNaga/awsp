@@ -6,6 +6,7 @@ const isDebug = Boolean(env.DEBUG);
 
 import { Browser } from './browser';
 import { AWS_CREDENTIALS_FILE_PATH, selectAwsProfile, setAwsCredentials } from './aws';
+import chalk from 'chalk';
 
 (async () => {
   const browser = new Browser(isDebug);
@@ -19,7 +20,9 @@ import { AWS_CREDENTIALS_FILE_PATH, selectAwsProfile, setAwsCredentials } from '
   await setAwsCredentials(credentials);
 
   console.info(
-    `\nSuccessfully set AWS credentials for profile "${selectedProfile.profileName}" to ${AWS_CREDENTIALS_FILE_PATH}`
+    `\nSuccessfully set AWS credentials for profile ${chalk.yellow(selectedProfile.profileName)} to ${chalk.gray(
+      AWS_CREDENTIALS_FILE_PATH
+    )}`
   );
 
   await browser.close();

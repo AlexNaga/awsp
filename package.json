@@ -21,6 +21,7 @@
     "url": "git+https://github.com/AlexNaga/awsp.git"
   },
   "dependencies": {
+    "chalk": "^4.1.2",
     "dotenv": "^16.0.3",
     "fs-extra": "^10.1.0",
     "fuzzy-search": "^3.2.1",
