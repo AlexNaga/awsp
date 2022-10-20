@@ -60,7 +60,7 @@ const loadingMessages = [
   'Loading Ω',
   'Looking for the power button.',
   'My other loading screen is much faster.',
-  'Obfuscating quantum entanglement',
+  'Obfuscating quantum entanglement.',
   'Oh, are you waiting for me?',
   'Optimizing the optimizer...',
   'Ordering 1s and 0s...',
