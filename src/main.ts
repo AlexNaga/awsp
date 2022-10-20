@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 import * as dotenv from 'dotenv';
 dotenv.config({ path: __dirname + '/../.env' });
-const { env } = process;
-const isDebug = Boolean(env.DEBUG);
+const isDebug = Boolean(process.env.DEBUG);
 
 import { Browser } from './browser';
 import { AWS_CREDENTIALS_FILE_PATH, selectAwsProfile, setAwsCredentials } from './aws';
