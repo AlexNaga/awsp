@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "chalk": "^5.1.2",
+    "dirname-filename-esm": "^1.1.1",
     "dotenv": "^16.0.3",
     "fs-extra": "^10.1.0",
     "fuzzy-search": "^3.2.1",

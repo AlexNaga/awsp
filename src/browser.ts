@@ -1,4 +1,6 @@
 import path from 'path';
+import { dirname } from 'dirname-filename-esm';
+const __dirname = dirname(import.meta);
 import { BrowserContext } from 'playwright';
 import { chromium, Page } from 'playwright-core';
 import { formatAwsCredentials } from './aws.js';
@@ -79,7 +81,7 @@ export class Browser {
 
   async init() {
     const spinner = createSpinner(chalk.dim(getRandomLoadingMessage())).start();
-    const userDataDir = `${path.resolve()}/.tmp`;
+    const userDataDir = path.join(__dirname, '../.tmp');
     this.browser = await chromium.launchPersistentContext(userDataDir, { headless: !this.debug });
 
     // allow clipboard access

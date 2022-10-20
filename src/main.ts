@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-import * as dotenv from 'dotenv';
 import path from 'path';
-dotenv.config({ path: `${path.resolve()}/.env` });
+import { dirname } from 'dirname-filename-esm';
+const __dirname = dirname(import.meta);
+import * as dotenv from 'dotenv';
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const isDebug = Boolean(process.env.DEBUG);
 
