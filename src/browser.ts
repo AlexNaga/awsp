@@ -1,12 +1,12 @@
 import path from 'path';
 import { BrowserContext } from 'playwright';
 import { chromium, Page } from 'playwright-core';
-import { formatAwsCredentials } from './aws';
-import { getUserInput } from './input';
-import { AwsProfile } from './models/AwsProfile';
-import { Credentials } from './models/Credentials';
+import { formatAwsCredentials } from './aws.js';
+import { getUserInput } from './input.js';
+import { AwsProfile } from './models/AwsProfile.js';
+import { Credentials } from './models/Credentials.js';
 import { createSpinner } from 'nanospinner';
-import { getRandomLoadingMessage } from './data/loading-messages';
+import { getRandomLoadingMessage } from './data/loading-messages.js';
 import chalk from 'chalk';
 
 const { env } = process;
@@ -79,7 +79,7 @@ export class Browser {
 
   async init() {
     const spinner = createSpinner(chalk.dim(getRandomLoadingMessage())).start();
-    const userDataDir = `${path.join(__dirname, '../.tmp')}`;
+    const userDataDir = `${path.resolve()}/.tmp`;
     this.browser = await chromium.launchPersistentContext(userDataDir, { headless: !this.debug });
 
     // allow clipboard access

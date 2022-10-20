@@ -1,10 +1,10 @@
-import { AwsProfile } from './models/AwsProfile';
+import { AwsProfile } from './models/AwsProfile.js';
 
 import fs from 'fs-extra';
 import ini from 'ini';
 import { homedir } from 'os';
-import { renderList } from './input';
-import { Credentials } from './models/Credentials';
+import { renderList } from './input.js';
+import { Credentials } from './models/Credentials.js';
 
 export const AWS_CONFIG_FILE_PATH = `${homedir()}/.aws/config`;
 export const AWS_CREDENTIALS_FILE_PATH = `${homedir()}/.aws/credentials`;

@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 import * as dotenv from 'dotenv';
-dotenv.config({ path: __dirname + '/../.env' });
+import path from 'path';
+dotenv.config({ path: `${path.resolve()}/.env` });
+
 const isDebug = Boolean(process.env.DEBUG);
 
-import { Browser } from './browser';
-import { AWS_CREDENTIALS_FILE_PATH, selectAwsProfile, setAwsCredentials } from './aws';
+import { Browser } from './browser.js';
+import { AWS_CREDENTIALS_FILE_PATH, selectAwsProfile, setAwsCredentials } from './aws.js';
 import chalk from 'chalk';
 
 (async () => {

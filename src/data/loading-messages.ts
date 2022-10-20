@@ -1,5 +1,3 @@
-// regex: [a-zA-Z]\.'
-
 const loadingMessages = [
   '...and enjoy the elevator music...',
   '*elevator music plays*',
@@ -91,7 +89,7 @@ const loadingMessages = [
   'Still faster than Windows update.',
   'Suh dude!',
   'Swapping time and space...',
-  'Switching sides',
+  'Switching sides.',
   'Switching to the latest JS framework...',
   'The architects are still drafting...',
   'The bits are flowing slowly today...',
