@@ -78,7 +78,7 @@ export class Browser {
   }
 
   async init() {
-    const spinner = createSpinner(chalk.gray(getRandomLoadingMessage())).start();
+    const spinner = createSpinner(chalk.dim(getRandomLoadingMessage())).start();
     const userDataDir = `${path.join(__dirname, '../.tmp')}`;
     this.browser = await chromium.launchPersistentContext(userDataDir, { headless: !this.debug });
 
