@@ -38,7 +38,7 @@ const authenticate = async (page: Page, mfaCode: string) => {
 };
 
 const fetchAwsProfiles = async (page: Page): Promise<AwsProfile[]> => {
-  await page.locator('portal-application').click();
+  await page.locator('portal-application').first().click();
   await page.locator('sso-expander').isVisible();
 
   const profileList = await page.$$('portal-instance');
