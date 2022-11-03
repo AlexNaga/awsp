@@ -20,10 +20,10 @@ const getBrowserClipboard = (page: Page) => page.evaluate(() => navigator.clipbo
 
 const isAuthenticated = async (page: Page) => {
   try {
-    await page.locator('portal-application').waitFor({ timeout: 1000 });
+    await page.locator('portal-application:has-text("AWS Account")').waitFor({ timeout: 1000 });
     // eslint-disable-next-line no-empty
   } catch (error) {}
-  return page.locator('portal-application').isVisible();
+  return page.locator('portal-application:has-text("AWS Account")').isVisible();
 };
 
 const authenticate = async (page: Page, mfaCode: string) => {
@@ -38,7 +38,7 @@ const authenticate = async (page: Page, mfaCode: string) => {
 };
 
 const fetchAwsProfiles = async (page: Page): Promise<AwsProfile[]> => {
-  await page.locator('portal-application').first().click();
+  await page.locator('portal-application:has-text("AWS Account")').first().click();
   await page.locator('sso-expander').isVisible();
 
   const profileList = await page.$$('portal-instance');
