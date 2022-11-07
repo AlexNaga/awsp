@@ -7,8 +7,13 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const isDebug = Boolean(process.env.DEBUG);
 
-import { Browser } from './browser.js';
-import { AWS_CREDENTIALS_FILE_PATH, selectAwsProfile, setAwsCredentials } from './aws.js';
+import { Browser } from './helpers/browser.js';
+import {
+  AWS_CREDENTIALS_FILE_PATH,
+  selectAwsProfile,
+  setAwsCredentials,
+  setLastSelectedProfile,
+} from './helpers/aws.js';
 import chalk from 'chalk';
 
 (async () => {
@@ -18,6 +23,7 @@ import chalk from 'chalk';
 
   const profiles = await browser.fetchAwsProfiles();
   const selectedProfile = await selectAwsProfile(profiles);
+  await setLastSelectedProfile(selectedProfile.profileName);
 
   const credentials = await browser.fetchCredentials(selectedProfile.profileId);
   await setAwsCredentials(credentials);

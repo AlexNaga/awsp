@@ -16,7 +16,7 @@ export const getUserInput = async (query: string): Promise<string> => {
   );
 };
 
-export const renderList = async (list: Choice[], message: string) => {
+export const renderList = async (list: Choice[], message: string, lastSelectedProfile = 0) => {
   const searcher = new FuzzySearch(list, ['title'], { caseSensitive: false });
   const response = await prompts({
     choices: list,
@@ -24,6 +24,7 @@ export const renderList = async (list: Choice[], message: string) => {
     name: 'value',
     suggest: async (input: string) => searcher.search(input),
     type: 'autocomplete',
+    initial: lastSelectedProfile,
   });
 
   return response.value;
