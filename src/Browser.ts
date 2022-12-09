@@ -3,12 +3,12 @@ import { dirname } from 'dirname-filename-esm';
 const __dirname = dirname(import.meta);
 import { BrowserContext } from 'playwright';
 import { chromium, Page } from 'playwright-core';
-import { formatAwsCredentials } from './aws.js';
-import { getUserInput } from './input.js';
-import { AwsProfile } from '../models/AwsProfile.js';
-import { Credentials } from '../models/Credentials.js';
+import { formatAwsCredentials } from './helpers/aws.js';
+import { getUserInput } from './helpers/input.js';
+import { AwsProfile } from './models/AwsProfile.js';
+import { Credentials } from './models/Credentials.js';
 import { createSpinner } from 'nanospinner';
-import { getRandomLoadingMessage } from '../data/loading-messages.js';
+import { getRandomLoadingMessage } from './data/loading-messages.js';
 import chalk from 'chalk';
 
 const { env } = process;

@@ -7,7 +7,7 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const isDebug = Boolean(process.env.DEBUG);
 
-import { Browser } from './helpers/browser.js';
+import { Browser } from './Browser.js';
 import {
   AWS_CREDENTIALS_FILE_PATH,
   selectAwsProfile,
