@@ -27,7 +27,7 @@ const isAuthenticated = async (page: Page) => {
 };
 
 const authenticate = async (page: Page, mfaCode: string) => {
-  await page.locator('#username-input').type(env.USER_EMAIL);
+  await page.locator('#username-input input').fill(env.USER_EMAIL);
   await page.keyboard.press('Enter');
 
   await page.locator('#password-input').type(env.USER_PASSWORD);
