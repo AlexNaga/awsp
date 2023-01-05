@@ -5,8 +5,6 @@ const __dirname = dirname(import.meta);
 import * as dotenv from 'dotenv';
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-const isDebug = Boolean(process.env.DEBUG);
-
 import { Browser } from './Browser.js';
 import {
   AWS_CREDENTIALS_FILE_PATH,
@@ -17,7 +15,7 @@ import {
 import chalk from 'chalk';
 
 (async () => {
-  const browser = new Browser(isDebug);
+  const browser = new Browser();
   await browser.init();
   await browser.authenticate();
 

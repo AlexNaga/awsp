@@ -75,8 +75,8 @@ export class Browser {
   browser!: BrowserContext;
   page!: Page;
 
-  constructor(debug = false) {
-    this.debug = debug;
+  constructor() {
+    this.debug = Boolean(env.DEBUG);
   }
 
   async init() {
@@ -89,7 +89,14 @@ export class Browser {
 
     this.page = await this.browser.newPage();
 
-    // block resources to speed up things
+    await this.initBlockResources();
+
+    await this.page.goto(env.AWS_URL);
+    spinner.success();
+  }
+
+  // block resources to speed up things
+  async initBlockResources() {
     await this.page.route('**/*', (route) => {
       if (blockedResourceTypes.includes(route.request().resourceType())) {
         route.abort();
@@ -99,9 +106,6 @@ export class Browser {
         route.continue();
       }
     });
-
-    await this.page.goto(env.AWS_URL);
-    spinner.success();
   }
 
   async isAuthenticated() {
