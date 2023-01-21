@@ -39,7 +39,6 @@ const loadingMessages = [
   'How do I turn this thing on?',
   'I think I am, therefore, I am. I think.',
   'If you are reading this, you can read.',
-  'If you type Google into Google you can break the internet',
   'Initializing the initializer...',
   'Initiating launch sequence.',
   'Insert Coin to Continue.',
