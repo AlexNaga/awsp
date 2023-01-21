@@ -51,7 +51,6 @@ const authenticateMicrosoft = async (page: Page) => {
 
   await page.locator('body', { hasText: 'Stay signed in?' }).click();
   await page.keyboard.press('Enter');
-
   await page.locator('input[type="submit"]').click();
 };
 
