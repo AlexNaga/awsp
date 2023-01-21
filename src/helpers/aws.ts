@@ -2,7 +2,7 @@ import { AwsProfile } from '../models/AwsProfile.js';
 
 import fs from 'fs-extra';
 import ini from 'ini';
-import { homedir } from 'os';
+import { homedir, EOL as osNewLine } from 'os';
 import path from 'path';
 import { dirname } from 'dirname-filename-esm';
 const __dirname = dirname(import.meta);
@@ -10,13 +10,14 @@ import { readFile } from './file.js';
 import { renderList } from './input.js';
 import { Credentials } from '../models/Credentials.js';
 import { isIndexFound } from './array.js';
+import { env } from 'process';
 
 export const AWS_CONFIG_FILE_PATH = `${homedir()}/.aws/config`;
 export const AWS_CREDENTIALS_FILE_PATH = `${homedir()}/.aws/credentials`;
 const LAST_SELECTED_PROFILE_FILE_PATH = `${path.join(__dirname, '../.tmp')}/.last-selected-profile`;
 
 export const formatAwsCredentials = (data: string): Credentials => {
-  const credentials = data.split('\n');
+  const credentials = data.split(osNewLine);
   const accessKeyId = credentials[1].split('aws_access_key_id=').pop();
   const secretAccessKey = credentials[2].split('aws_secret_access_key=').pop();
   const sessionToken = credentials[3].split('aws_session_token=').pop();
@@ -37,9 +38,9 @@ export const ensureHasAwsConfigs = async () => {
   await fs.ensureFile(AWS_CONFIG_FILE_PATH);
   let awsConfig = await readIniFile(AWS_CONFIG_FILE_PATH);
 
-  if (!awsConfig?.default) {
+  if (!awsConfig?.default && env.AWS_DEFAULT_REGION) {
     awsConfig = {
-      default: { region: 'eu-north-1', output: 'json' },
+      default: { region: env.AWS_DEFAULT_REGION, output: 'json' },
     };
     await fs.writeFile(AWS_CONFIG_FILE_PATH, ini.stringify(awsConfig));
   }

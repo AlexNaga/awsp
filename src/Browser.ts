@@ -26,7 +26,7 @@ const isAuthenticated = async (page: Page) => {
   return page.locator('portal-application:has-text("AWS Account")').isVisible();
 };
 
-const authenticate = async (page: Page, mfaCode: string) => {
+const authenticateAws = async (page: Page, mfaCode: string) => {
   await page.locator('#username-input input').fill(env.USER_EMAIL);
   await page.keyboard.press('Enter');
 
@@ -35,6 +35,22 @@ const authenticate = async (page: Page, mfaCode: string) => {
 
   await page.locator('input[type="text"]').fill(mfaCode);
   await page.keyboard.press('Enter');
+};
+
+const authenticateMicrosoft = async (page: Page) => {
+  await page.locator('input[type="email"]').fill(env.USER_EMAIL);
+  await page.keyboard.press('Enter');
+  await page.waitForNavigation({ waitUntil: 'networkidle' });
+
+  await page.locator('input[type="password"]').type(env.USER_PASSWORD);
+  await page.keyboard.press('Enter');
+  await page.waitForNavigation({ waitUntil: 'networkidle' });
+
+  await page.keyboard.press('Enter');
+  await page.waitForURL('**/ProcessAuth', { timeout: 60000 }); // wait for the user to approve the login through the Microsoft Authenticator app
+
+  await page.keyboard.press('Enter');
+  await page.locator('input[type="submit"]').click();
 };
 
 const fetchAwsProfiles = async (page: Page): Promise<AwsProfile[]> => {
@@ -121,17 +137,27 @@ export class Browser {
       return;
     }
 
+    const isMicrosoftLogin = this.page.url().includes(env.MICROSOFT_LOGIN_HOSTNAME);
     let mfaCode = '';
+
     authCheckSpinner.warn();
 
-    while (!mfaCode || mfaCode.length !== 6) {
-      mfaCode = await getUserInput('Enter MFA code: ');
+    if (!isMicrosoftLogin) {
+      while (!mfaCode || mfaCode.length !== 6) {
+        mfaCode = await getUserInput('Enter MFA code: ');
 
-      if (mfaCode.length !== 6) console.warn('MFA code is not 6 chars long.');
+        if (mfaCode.length !== 6) console.warn('MFA code is not 6 chars long.');
+      }
     }
 
     const authSpinner = createSpinner('Authenticating.').start();
-    await authenticate(this.page, mfaCode);
+
+    if (!isMicrosoftLogin) {
+      await authenticateAws(this.page, mfaCode);
+    } else {
+      await authenticateMicrosoft(this.page);
+    }
+
     authSpinner.success();
   }
 
