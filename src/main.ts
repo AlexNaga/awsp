@@ -12,7 +12,6 @@ import {
   selectAwsProfile,
   setAwsCredentials,
   setLastSelectedProfile,
-  WSL_AWS_CREDENTIALS_FILE_PATH,
 } from './helpers/aws.js';
 import chalk from 'chalk';
 
@@ -37,7 +36,7 @@ import chalk from 'chalk';
   if (env.UPDATE_WSL_AWS_CREDENTIALS) {
     console.info(
       `\nSuccessfully set WSL AWS credentials for profile ${chalk.yellow(selectedProfile.profileName)} to ${chalk.gray(
-        WSL_AWS_CREDENTIALS_FILE_PATH
+        `${env.WSL_HOME_DIR_PATH}/.aws/credentials`
       )}`
     );
   }

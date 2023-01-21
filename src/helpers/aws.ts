@@ -14,12 +14,9 @@ import { isIndexFound } from './array.js';
 const { env } = process;
 
 const LAST_SELECTED_PROFILE_FILE_PATH = `${path.join(__dirname, '../.tmp')}/.last-selected-profile`;
-const WSL_HOME_DIR_PATH = `//${env.WSL_HOME_DIR_PATH}`;
 
 export const AWS_CONFIG_FILE_PATH = `${homedir()}/.aws/config`;
 export const AWS_CREDENTIALS_FILE_PATH = `${homedir()}/.aws/credentials`;
-export const WSL_AWS_CONFIG_FILE_PATH = `${WSL_HOME_DIR_PATH}/.aws/config`;
-export const WSL_AWS_CREDENTIALS_FILE_PATH = `${WSL_HOME_DIR_PATH}/.aws/credentials`;
 
 export const formatAwsCredentials = (data: string): Credentials => {
   const credentials = data.split(osNewLine);
@@ -40,11 +37,6 @@ export const ensureHasAwsConfigs = async () => {
   await fs.ensureFile(AWS_CONFIG_FILE_PATH);
   await fs.ensureFile(AWS_CREDENTIALS_FILE_PATH);
 
-  if (env.UPDATE_WSL_AWS_CREDENTIALS) {
-    await fs.ensureFile(WSL_AWS_CONFIG_FILE_PATH);
-    await fs.ensureFile(WSL_AWS_CREDENTIALS_FILE_PATH);
-  }
-
   let awsConfig = await readIniFile(AWS_CONFIG_FILE_PATH);
 
   // ensure config file defaults
@@ -57,7 +49,8 @@ export const ensureHasAwsConfigs = async () => {
   await fs.writeFile(AWS_CONFIG_FILE_PATH, ini.stringify(awsConfig));
 
   if (env.UPDATE_WSL_AWS_CREDENTIALS) {
-    await fs.writeFile(WSL_AWS_CONFIG_FILE_PATH, ini.stringify(awsConfig));
+    await fs.ensureFile(`//${env.WSL_HOME_DIR_PATH}/.aws/credentials`);
+    await fs.writeFile(`//${env.WSL_HOME_DIR_PATH}/.aws/config`, ini.stringify(awsConfig));
   }
 };
 
@@ -87,7 +80,7 @@ export const setAwsCredentials = async ({
   await fs.writeFile(AWS_CREDENTIALS_FILE_PATH, ini.stringify(awsCredentials));
 
   if (env.UPDATE_WSL_AWS_CREDENTIALS) {
-    await fs.writeFile(WSL_AWS_CREDENTIALS_FILE_PATH, ini.stringify(awsCredentials));
+    await fs.writeFile(`//${env.WSL_HOME_DIR_PATH}/.aws/credentials`, ini.stringify(awsCredentials));
   }
 };
 
