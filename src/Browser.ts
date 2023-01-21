@@ -40,16 +40,15 @@ const authenticateAws = async (page: Page, mfaCode: string) => {
 const authenticateMicrosoft = async (page: Page) => {
   await page.locator('input[type="email"]').fill(env.USER_EMAIL);
   await page.keyboard.press('Enter');
-
   await page.waitForNavigation({ waitUntil: 'networkidle' });
 
   await page.locator('input[type="password"]').type(env.USER_PASSWORD);
   await page.keyboard.press('Enter');
-
   await page.waitForNavigation({ waitUntil: 'networkidle' });
-  await page.keyboard.press('Enter');
 
-  await page.locator('body', { hasText: 'Stay signed in?' }).click();
+  await page.keyboard.press('Enter');
+  await page.waitForURL('**/ProcessAuth', { timeout: 60000 }); // wait for the user to approve the login through the Microsoft Authenticator app
+
   await page.keyboard.press('Enter');
   await page.locator('input[type="submit"]').click();
 };
