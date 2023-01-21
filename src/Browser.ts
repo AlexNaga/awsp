@@ -137,11 +137,12 @@ export class Browser {
       return;
     }
 
-    const isMicrosoftLogin = this.page.url().includes(env.MICROSOFT_LOGIN_HOSTNAME);
+    const isMicrosoftLogin = env.MICROSOFT_LOGIN_HOSTNAME && this.page.url().includes(env.MICROSOFT_LOGIN_HOSTNAME);
     let mfaCode = '';
 
     authCheckSpinner.warn();
 
+    // get MFA code
     if (!isMicrosoftLogin) {
       while (!mfaCode || mfaCode.length !== 6) {
         mfaCode = await getUserInput('Enter MFA code: ');
@@ -152,10 +153,10 @@ export class Browser {
 
     const authSpinner = createSpinner('Authenticating.').start();
 
-    if (!isMicrosoftLogin) {
-      await authenticateAws(this.page, mfaCode);
-    } else {
+    if (isMicrosoftLogin) {
       await authenticateMicrosoft(this.page);
+    } else {
+      await authenticateAws(this.page, mfaCode);
     }
 
     authSpinner.success();
