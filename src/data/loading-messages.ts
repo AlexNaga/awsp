@@ -120,6 +120,6 @@ const loadingMessages = [
   "We're going to need a bigger boat.",
   "We're testing your patience.",
   "What's under there?",
-];
+]
 
-export const getRandomLoadingMessage = () => loadingMessages[(loadingMessages.length * Math.random()) | 0];
+export const getRandomLoadingMessage = () => loadingMessages[(loadingMessages.length * Math.random()) | 0]

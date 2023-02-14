@@ -10,6 +10,7 @@
     "start": "node dist/main.js",
     "dev": "cross-env DEBUG=true npm start",
     "build": "npx tsc",
+    "lint:fix": "npx eslint . --fix",
     "watch": "npm run build -- --watch",
     "copy:env": "cp -n .env.example .env || exit 0",
     "postinstall": "npm run copy:env && npm run build"

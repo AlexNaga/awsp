@@ -1,4 +1,4 @@
 export interface AwsProfile {
-  profileName: string;
-  profileId: string;
+  profileName: string
+  profileId: string
 }

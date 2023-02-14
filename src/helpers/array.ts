@@ -1,1 +1,1 @@
-export const isIndexFound = (index: number) => index !== -1;
+export const isIndexFound = (index: number) => index !== -1

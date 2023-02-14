@@ -1,3 +1,3 @@
-import fs from 'fs-extra';
+import fs from 'fs-extra'
 
-export const readFile = async (filePath: string) => fs.readFile(filePath, 'utf-8');
+export const readFile = async (filePath: string) => fs.readFile(filePath, 'utf-8')
