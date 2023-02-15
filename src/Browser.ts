@@ -111,7 +111,7 @@ export class Browser {
 
     await this.initBlockResources()
 
-    await this.page.goto(env.AWS_URL)
+    await this.page.goto(env.AWS_URL, { timeout: 60000 })
     spinner.success()
   }
 
