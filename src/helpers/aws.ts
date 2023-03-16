@@ -47,11 +47,6 @@ export const ensureHasAwsConfigs = async () => {
   }
 
   await fs.writeFile(AWS_CONFIG_FILE_PATH, ini.stringify(awsConfig))
-
-  if (env.UPDATE_WSL_AWS_CREDENTIALS) {
-    await fs.ensureFile(`//${env.WSL_HOME_DIR_PATH}/.aws/credentials`)
-    await fs.writeFile(`//${env.WSL_HOME_DIR_PATH}/.aws/config`, ini.stringify(awsConfig))
-  }
 }
 
 export const getAwsCredentials = async () => {
@@ -78,10 +73,6 @@ export const setAwsCredentials = async ({
   awsCredentials.default.aws_session_token = sessionToken
 
   await fs.writeFile(AWS_CREDENTIALS_FILE_PATH, ini.stringify(awsCredentials))
-
-  if (env.UPDATE_WSL_AWS_CREDENTIALS) {
-    await fs.writeFile(`//${env.WSL_HOME_DIR_PATH}/.aws/credentials`, ini.stringify(awsCredentials))
-  }
 }
 
 export const getLastSelectedProfile = async () => {

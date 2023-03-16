@@ -5,10 +5,8 @@ export declare global {
       AWS_URL: string
       DEBUG?: string
       IS_MICROSOFT_LOGIN?: string
-      UPDATE_WSL_AWS_CREDENTIALS?: string
       USER_EMAIL: string
       USER_PASSWORD: string
-      WSL_HOME_DIR_PATH?: string
     }
   }
 }

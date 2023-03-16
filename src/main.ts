@@ -4,7 +4,6 @@ import { dirname } from 'dirname-filename-esm'
 const __dirname = dirname(import.meta)
 import * as dotenv from 'dotenv'
 dotenv.config({ path: path.join(__dirname, '../.env') })
-const { env } = process
 
 import { Browser } from './Browser.js'
 import {
@@ -31,14 +30,6 @@ import chalk from 'chalk'
       AWS_CREDENTIALS_FILE_PATH
     )}`
   )
-
-  if (env.UPDATE_WSL_AWS_CREDENTIALS) {
-    console.info(
-      `\nSuccessfully set WSL AWS credentials for profile ${chalk.yellow(selectedProfile.profileName)} to ${chalk.gray(
-        `${env.WSL_HOME_DIR_PATH}/.aws/credentials`
-      )}`
-    )
-  }
 
   await browser.close()
 })()
