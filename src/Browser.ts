@@ -13,8 +13,8 @@ import chalk from 'chalk'
 
 const { env } = process
 
-const blockedResourceTypes = ['stylesheet', 'image', 'media', 'font']
-const blockedFileExtensions = ['.ico', '.css', '.jpg', '.jpeg', '.png', '.svg', '.woff']
+const blockedResourceTypes: string[] = ['image', 'media', 'font']
+const blockedFileExtensions: string[] = ['.ico', '.jpg', '.jpeg', '.png', '.svg', '.woff']
 
 const getBrowserClipboard = (page: Page) => page.evaluate(() => navigator.clipboard.readText())
 
@@ -46,9 +46,13 @@ const authenticateMicrosoft = async (page: Page) => {
     // eslint-disable-next-line no-empty
   } catch (error) {}
 
-  await page.locator('input[type="password"]').type(env.USER_PASSWORD)
-  await page.keyboard.press('Enter')
-  await page.waitForNavigation({ waitUntil: 'networkidle' })
+  // handle the case when password is already filled in
+  try {
+    await page.locator('input[type="password"]').type(env.USER_PASSWORD, { timeout: 3000 })
+    await page.keyboard.press('Enter')
+    await page.waitForNavigation({ waitUntil: 'networkidle' })
+    // eslint-disable-next-line no-empty
+  } catch (error) {}
 
   await page.keyboard.press('Enter')
   await page.waitForURL('**/ProcessAuth', { timeout: 60000 }) // wait for the user to approve the login through the Microsoft Authenticator app

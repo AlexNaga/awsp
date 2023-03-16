@@ -62,7 +62,7 @@ const loadingMessages = [
   'Obfuscating quantum entanglement.',
   'Oh, are you waiting for me?',
   'Optimizing the optimizer...',
-  'Ordering 1s and 0s...',
+  'Sorting 1s and 0s...',
   'Patience! This is difficult, you know...',
   'Please hold on as we reheat our coffee.',
   'Please wait until the sloth starts moving.',
