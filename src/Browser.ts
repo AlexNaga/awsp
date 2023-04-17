@@ -40,7 +40,7 @@ const authenticateAws = async (page: Page, mfaCode: string) => {
 const authenticateMicrosoft = async (page: Page) => {
   // handle the case when email is already filled in
   try {
-    await page.locator('input[type="email"]').fill(env.USER_EMAIL, { timeout: 3000 })
+    await page.locator('input[type="email"]').fill(env.USER_EMAIL, { timeout: 5000 })
     await page.keyboard.press('Enter')
     await page.waitForNavigation({ waitUntil: 'networkidle' })
     // eslint-disable-next-line no-empty
