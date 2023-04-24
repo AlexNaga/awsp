@@ -10,6 +10,7 @@ import { Credentials } from './models/Credentials.js'
 import { createSpinner } from 'nanospinner'
 import { getRandomLoadingMessage } from './data/loading-messages.js'
 import chalk from 'chalk'
+import { generateMfaCode } from './helpers/token.js'
 
 const { env } = process
 
@@ -19,11 +20,13 @@ const blockedFileExtensions: string[] = ['.ico', '.jpg', '.jpeg', '.png', '.svg'
 const getBrowserClipboard = (page: Page) => page.evaluate(() => navigator.clipboard.readText())
 
 const isAuthenticated = async (page: Page) => {
+  const isAuthenticatedLocator = 'portal-application:has-text("AWS Account")'
+
   try {
-    await page.locator('portal-application:has-text("AWS Account")').waitFor({ timeout: 1000 })
+    await page.locator(isAuthenticatedLocator).waitFor({ timeout: 1000 })
     // eslint-disable-next-line no-empty
   } catch (error) {}
-  return page.locator('portal-application:has-text("AWS Account")').isVisible()
+  return page.locator(isAuthenticatedLocator).isVisible()
 }
 
 const authenticateAws = async (page: Page, mfaCode: string) => {
@@ -37,7 +40,7 @@ const authenticateAws = async (page: Page, mfaCode: string) => {
   await page.keyboard.press('Enter')
 }
 
-const authenticateMicrosoft = async (page: Page) => {
+const authenticateMicrosoft = async (page: Page, mfaCode: string) => {
   // handle the case when email is already filled in
   try {
     await page.locator('input[type="email"]').fill(env.USER_EMAIL, { timeout: 5000 })
@@ -54,11 +57,15 @@ const authenticateMicrosoft = async (page: Page) => {
     // eslint-disable-next-line no-empty
   } catch (error) {}
 
+  await page.keyboard.press('Tab')
   await page.keyboard.press('Enter')
-  await page.waitForURL('**/ProcessAuth', { timeout: 60000 }) // wait for the user to approve the login through the Microsoft Authenticator app
 
+  await page.locator('input[type="tel"]').fill(mfaCode)
   await page.keyboard.press('Enter')
-  await page.locator('input[type="submit"]').click()
+
+  await page.waitForURL('**/ProcessAuth', { timeout: 60000 })
+  await page.keyboard.press('Enter')
+  await page.keyboard.press('Enter')
 }
 
 const fetchAwsProfiles = async (page: Page): Promise<AwsProfile[]> => {
@@ -145,23 +152,22 @@ export class Browser {
       return
     }
 
-    let mfaCode = ''
+    let mfaCode = env.MICROSOFT_SECRET_MFA_KEY ? generateMfaCode(env.MICROSOFT_SECRET_MFA_KEY) : ''
 
     authCheckSpinner.warn()
 
     // get MFA code
-    if (!env.IS_MICROSOFT_LOGIN) {
+    if (!mfaCode) {
       while (!mfaCode || mfaCode.length !== 6) {
         mfaCode = await getUserInput('Enter MFA code: ')
 
         if (mfaCode.length !== 6) console.warn('MFA code is not 6 chars long.')
       }
     }
-
     const authSpinner = createSpinner('Authenticating.').start()
 
     if (env.IS_MICROSOFT_LOGIN) {
-      await authenticateMicrosoft(this.page)
+      await authenticateMicrosoft(this.page, mfaCode)
     } else {
       await authenticateAws(this.page, mfaCode)
     }
