@@ -152,7 +152,7 @@ export class Browser {
       return
     }
 
-    let mfaCode = env.MICROSOFT_SECRET_MFA_KEY ? generateMfaCode(env.MICROSOFT_SECRET_MFA_KEY) : ''
+    let mfaCode = env.SECRET_MFA_KEY ? generateMfaCode(env.SECRET_MFA_KEY) : ''
 
     authCheckSpinner.warn()
 

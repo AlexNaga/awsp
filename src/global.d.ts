@@ -4,7 +4,7 @@ export declare global {
       AWS_DEFAULT_REGION: string
       AWS_URL: string
       DEBUG?: string
-      MICROSOFT_SECRET_MFA_KEY?: string
+      SECRET_MFA_KEY?: string
       IS_MICROSOFT_LOGIN?: string
       USER_EMAIL: string
       USER_PASSWORD: string
