@@ -60,7 +60,7 @@ const authenticateMicrosoft = async (page: Page, mfaCode: string) => {
   await page.keyboard.press('Tab')
   await page.keyboard.press('Enter')
 
-  await page.locator('input[type="tel"]').fill(mfaCode)
+  await page.locator('input[type="tel"]').fill(mfaCode, { timeout: 60000 })
   await page.keyboard.press('Enter')
 
   await page.waitForURL('**/ProcessAuth', { timeout: 60000 })
@@ -69,7 +69,7 @@ const authenticateMicrosoft = async (page: Page, mfaCode: string) => {
 }
 
 const fetchAwsProfiles = async (page: Page): Promise<AwsProfile[]> => {
-  await page.locator('portal-application:has-text("AWS Account")').first().click()
+  await page.locator('portal-application:has-text("AWS Account")').first().click({ timeout: 60000 })
   await page.locator('sso-expander').isVisible()
 
   const profileList = await page.$$('portal-instance')
@@ -95,7 +95,7 @@ const fetchCredentials = async (page: Page, awsProfileId: string) => {
   await page.locator(`text=${awsProfileId}`).click()
   await page.waitForTimeout(1000)
 
-  await page.locator('#temp-credentials-button').click()
+  await page.locator('#temp-credentials-button').first().click()
   await page.locator('#hover-copy-env').click()
 
   return getBrowserClipboard(page)
