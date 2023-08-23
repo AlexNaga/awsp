@@ -23,7 +23,7 @@ const isAuthenticated = async (page: Page) => {
   const isAuthenticatedLocator = 'portal-application:has-text("AWS Account")'
 
   try {
-    await page.locator(isAuthenticatedLocator).waitFor({ timeout: 1000 })
+    await page.locator(isAuthenticatedLocator).waitFor({ timeout: 2000 })
     // eslint-disable-next-line no-empty
   } catch (error) {}
   return page.locator(isAuthenticatedLocator).isVisible()
@@ -43,7 +43,7 @@ const authenticateAws = async (page: Page, mfaCode: string) => {
 const authenticateMicrosoft = async (page: Page, mfaCode: string) => {
   // handle the case when email is already filled in
   try {
-    await page.locator('input[type="email"]').fill(env.USER_EMAIL, { timeout: 10000 })
+    await page.locator('input[type="email"]').fill(env.USER_EMAIL, { timeout: 8000 })
     await page.keyboard.press('Enter')
     await page.waitForNavigation({ waitUntil: 'networkidle' })
     // eslint-disable-next-line no-empty
@@ -62,7 +62,13 @@ const authenticateMicrosoft = async (page: Page, mfaCode: string) => {
 
   await page.waitForURL('**/ProcessAuth', { timeout: 60000 })
   await page.keyboard.press('Enter')
-  await page.keyboard.press('Enter')
+
+  // handle the case when it asks if we want to stay signed in
+  try {
+    await page.getByText('Stay signed in?', { exact: true }).isVisible({ timeout: 3000 })
+    await page.keyboard.press('Enter')
+    // eslint-disable-next-line no-empty
+  } catch (error) {}
 }
 
 const fetchAwsProfiles = async (page: Page): Promise<AwsProfile[]> => {
