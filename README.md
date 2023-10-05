@@ -20,7 +20,7 @@ npm i
 
 After install, change the example values in the file `.env`
 
-The _SECRET_MFA_KEY_ is generated from https://mysignins.microsoft.com/security-info
+If using Microsoft SSO, the _SECRET_MFA_KEY_ is generated from https://mysignins.microsoft.com/security-info
 
 #### 4. Install globally
 
