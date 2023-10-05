@@ -4,9 +4,9 @@ const __dirname = dirname(import.meta)
 import { BrowserContext } from 'playwright'
 import { chromium, Page } from 'playwright-core'
 import { formatAwsCredentials } from './helpers/aws.js'
-import { getUserInput } from './helpers/input.js'
+import { prompt } from './helpers/input.js'
 import { AwsProfile } from './models/AwsProfile.js'
-import { Credentials } from './models/Credentials.js'
+import { AwsCredentials } from './models/AwsCredentials.js'
 import { createSpinner } from 'nanospinner'
 import { getRandomLoadingMessage } from './data/loading-messages.js'
 import chalk from 'chalk'
@@ -29,21 +29,19 @@ const isAuthenticated = async (page: Page) => {
   return page.locator(isAuthenticatedLocator).isVisible()
 }
 
-const authenticateAws = async (page: Page, mfaCode: string) => {
-  await page.locator('#username-input input').fill(env.USER_EMAIL)
+const authenticateAws = async (page: Page, email: string, password: string, mfaCode: string) => {
+  await page.locator('#username').fill(email)
+  await page.locator('#password').fill(password)
   await page.keyboard.press('Enter')
 
-  await page.locator('#password-input').type(env.USER_PASSWORD)
-  await page.keyboard.press('Enter')
-
-  await page.locator('input[type="text"]').fill(mfaCode)
+  await page.locator('#mfacode').fill(mfaCode)
   await page.keyboard.press('Enter')
 }
 
-const authenticateMicrosoft = async (page: Page, mfaCode: string) => {
+const authenticateMicrosoft = async (page: Page, email: string, password: string, mfaCode: string) => {
   // handle the case when email is already filled in
   try {
-    await page.locator('input[type="email"]').fill(env.USER_EMAIL, { timeout: 8000 })
+    await page.locator('input[type="email"]').fill(email, { timeout: 8000 })
     await page.keyboard.press('Enter')
     await page.waitForNavigation({ waitUntil: 'networkidle' })
     // eslint-disable-next-line no-empty
@@ -51,7 +49,7 @@ const authenticateMicrosoft = async (page: Page, mfaCode: string) => {
 
   // handle the case when password is already filled in
   try {
-    await page.locator('input[type="password"]').type(env.USER_PASSWORD, { timeout: 3000 })
+    await page.locator('input[type="password"]').fill(password, { timeout: 3000 })
     await page.keyboard.press('Enter')
     await page.waitForNavigation({ waitUntil: 'networkidle' })
     // eslint-disable-next-line no-empty
@@ -162,7 +160,7 @@ export class Browser {
     // get MFA code
     if (!mfaCode) {
       while (!mfaCode || mfaCode.length !== 6) {
-        mfaCode = await getUserInput('Enter MFA code: ')
+        mfaCode = await prompt.input('Enter MFA code: ')
 
         if (mfaCode.length !== 6) console.warn('MFA code is not 6 chars long.')
       }
@@ -170,9 +168,9 @@ export class Browser {
     const authSpinner = createSpinner('Authenticating.').start()
 
     if (env.IS_MICROSOFT_LOGIN) {
-      await authenticateMicrosoft(this.page, mfaCode)
+      await authenticateMicrosoft(this.page, env.USER_EMAIL, env.USER_PASSWORD, mfaCode)
     } else {
-      await authenticateAws(this.page, mfaCode)
+      await authenticateAws(this.page, env.USER_EMAIL, env.USER_PASSWORD, mfaCode)
     }
 
     authSpinner.success()
@@ -185,7 +183,7 @@ export class Browser {
     return profiles
   }
 
-  async fetchCredentials(awsProfileId: string): Promise<Credentials> {
+  async fetchCredentials(awsProfileId: string): Promise<AwsCredentials> {
     const spinner = createSpinner('Fetching credentials.').start()
     const rawCredentials = await fetchCredentials(this.page, awsProfileId)
     const credentials = formatAwsCredentials(rawCredentials)
