@@ -43,7 +43,7 @@ const authenticateMicrosoft = async (page: Page, email: string, password: string
   try {
     await page.locator('input[type="email"]').fill(email, { timeout: 8000 })
     await page.keyboard.press('Enter')
-    await page.waitForNavigation({ waitUntil: 'networkidle' })
+    await page.waitForLoadState('networkidle')
     // eslint-disable-next-line no-empty
   } catch (error) {}
 
@@ -51,7 +51,7 @@ const authenticateMicrosoft = async (page: Page, email: string, password: string
   try {
     await page.locator('input[type="password"]').fill(password, { timeout: 3000 })
     await page.keyboard.press('Enter')
-    await page.waitForNavigation({ waitUntil: 'networkidle' })
+    await page.waitForLoadState('networkidle')
     // eslint-disable-next-line no-empty
   } catch (error) {}
 
