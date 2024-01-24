@@ -7,7 +7,7 @@ A script to switch between your AWS profiles.
 #### 1. Clone this repo
 
 ```sh
-git clone git@github.com:AlexNaga/awsp.git.
+git clone git@github.com:AlexNaga/awsp.git
 ```
 
 #### 2. Install dependencies
