@@ -14,7 +14,7 @@
     "lint:fix": "npx eslint . --fix",
     "watch": "npm run build -- --watch",
     "copy:env": "cp -n .env.example .env || exit 0",
-    "postinstall": "npm run copy:env && npm run build"
+    "postinstall": "npm run copy:env && npx playwright install chromium && npm run build"
   },
   "author": "Alex",
   "license": "ISC",
@@ -30,7 +30,7 @@
     "fuzzy-search": "^3.2.1",
     "ini": "^4.1.1",
     "nanospinner": "^1.1.0",
-    "playwright": "^1.38.1",
+    "playwright": "^1.41.1",
     "prompts": "^2.4.2",
     "totp-generator": "^0.0.14"
   },
