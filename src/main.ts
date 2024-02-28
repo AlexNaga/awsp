@@ -14,10 +14,9 @@ import {
   setLastSelectedProfile,
 } from './helpers/aws.js'
 import chalk from 'chalk'
-import { prompt } from './helpers/input.js'
 import { AwsCredentials } from './models/AwsCredentials.js'
 ;(async () => {
-  const usePrivateAccount = await prompt.confirm('Do you want to use your own private AWS account?')
+  const usePrivateAccount = process.argv[2] === 'p' || process.argv[2] === 'profile'
   let credentials: AwsCredentials = {
     accessKeyId: env.PRIVATE_USER_ACCESS_KEY ?? '',
     secretAccessKey: env.PRIVATE_USER_SECRET_ACCESS_KEY ?? '',
