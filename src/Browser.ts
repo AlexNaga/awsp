@@ -3,7 +3,6 @@ import { dirname } from 'dirname-filename-esm'
 const __dirname = dirname(import.meta)
 import { BrowserContext } from 'playwright'
 import { chromium, Page } from 'playwright-core'
-import { formatAwsCredentials } from './helpers/aws.js'
 import { prompt } from './helpers/input.js'
 import { AwsProfile } from './models/AwsProfile.js'
 import { AwsCredentials } from './models/AwsCredentials.js'
@@ -17,10 +16,8 @@ const { env } = process
 const blockedResourceTypes: string[] = ['image', 'media', 'font']
 const blockedFileExtensions: string[] = ['.ico', '.jpg', '.jpeg', '.png', '.svg', '.woff']
 
-const getBrowserClipboard = (page: Page) => page.evaluate(() => navigator.clipboard.readText())
-
 const isAuthenticated = async (page: Page) => {
-  const isAuthenticatedLocator = 'portal-application:has-text("AWS Account")'
+  const isAuthenticatedLocator = '#header' // only visible when logged in
 
   try {
     await page.locator(isAuthenticatedLocator).waitFor({ timeout: 2000 })
@@ -69,17 +66,25 @@ const authenticateMicrosoft = async (page: Page, email: string, password: string
   } catch (error) {}
 }
 
-const fetchAwsProfiles = async (page: Page): Promise<AwsProfile[]> => {
-  await page.locator('portal-application:has-text("AWS Account")').first().click({ timeout: 60000 })
-  await page.locator('sso-expander').isVisible()
+const getNextElementSiblingTxt = async (page: Page, elem: string) =>
+  (
+    await (await page.getByText(elem, { exact: true }).evaluateHandle((e) => e.nextElementSibling))
+      ?.asElement()
+      ?.textContent()
+  )
+    ?.replace('=', '')
+    .trim()
 
-  const profileList = await page.$$('portal-instance')
+const fetchAwsProfiles = async (page: Page): Promise<AwsProfile[]> => {
+  const profilesSelector = 'account-list-cell'
+  await page.getByTestId(profilesSelector).first().waitFor()
+  const profileList = await page.getByTestId(profilesSelector).all()
 
   // get all profile names and IDs
   return Promise.all(
     profileList.map(async (elem) => {
-      const profileName = await (await elem.$('.name'))?.textContent()
-      const profileId = (await (await elem.$('.accountId'))?.textContent())?.replace('#', '')
+      const profileName = await elem.locator('strong').textContent()
+      const profileId = (await elem.locator('div').nth(2).textContent())?.split('|')[0].trim()
 
       if (!profileName) throw new Error('Error: profileName is not defined')
       if (!profileId) throw new Error('Error: profileId is not defined')
@@ -89,17 +94,22 @@ const fetchAwsProfiles = async (page: Page): Promise<AwsProfile[]> => {
   )
 }
 
-const fetchCredentials = async (page: Page, awsProfileId: string) => {
-  const profilesSelector = 'portal-instance'
-  await page.waitForSelector(profilesSelector)
-
+const fetchCredentials = async (page: Page, awsProfileId: string): Promise<AwsCredentials> => {
+  const profilesSelector = 'account-list-cell'
+  await page.getByTestId(profilesSelector).first().waitFor()
   await page.locator(`text=${awsProfileId}`).click()
-  await page.waitForTimeout(1000)
+  await page.getByTestId('role-creation-action-button').first().click()
 
-  await page.locator('#temp-credentials-button').first().click()
-  await page.locator('#hover-copy-env').click()
+  // we want to get the text of the next element sibling since it contains the actual values
+  const accessKeyId = await getNextElementSiblingTxt(page, 'aws_access_key_id')
+  const secretAccessKey = await getNextElementSiblingTxt(page, 'aws_secret_access_key')
+  const sessionToken = await getNextElementSiblingTxt(page, 'aws_session_token')
 
-  return getBrowserClipboard(page)
+  if (!accessKeyId) throw new Error('Error: accessKeyId has no value')
+  if (!secretAccessKey) throw new Error('Error: secretAccessKey has no value')
+  if (!sessionToken) throw new Error('Error: sessionToken has no value')
+
+  return { accessKeyId, secretAccessKey, sessionToken }
 }
 
 export class Browser {
@@ -185,8 +195,7 @@ export class Browser {
 
   async fetchCredentials(awsProfileId: string): Promise<AwsCredentials> {
     const spinner = createSpinner('Fetching credentials.').start()
-    const rawCredentials = await fetchCredentials(this.page, awsProfileId)
-    const credentials = formatAwsCredentials(rawCredentials)
+    const credentials = await fetchCredentials(this.page, awsProfileId)
     spinner.success()
     return credentials
   }

@@ -2,7 +2,7 @@ import { AwsProfile } from '../models/AwsProfile.js'
 
 import fs from 'fs-extra'
 import ini from 'ini'
-import { homedir, EOL as osNewLine } from 'os'
+import { homedir } from 'os'
 import path from 'path'
 import { dirname } from 'dirname-filename-esm'
 const __dirname = dirname(import.meta)
@@ -15,19 +15,6 @@ const LAST_SELECTED_PROFILE_FILE_PATH = `${path.join(__dirname, '../.tmp')}/.las
 
 export const AWS_CONFIG_FILE_PATH = `${homedir()}/.aws/config`
 export const AWS_CREDENTIALS_FILE_PATH = `${homedir()}/.aws/credentials`
-
-export const formatAwsCredentials = (data: string): AwsCredentials => {
-  const credentials = data.split(osNewLine)
-  const accessKeyId = credentials[1].split('aws_access_key_id=').pop()
-  const secretAccessKey = credentials[2].split('aws_secret_access_key=').pop()
-  const sessionToken = credentials[3].split('aws_session_token=').pop()
-
-  if (!accessKeyId) throw new Error('Error: accessKeyId has no value')
-  if (!secretAccessKey) throw new Error('Error: secretAccessKey has no value')
-  if (!sessionToken) throw new Error('Error: sessionToken has no value')
-
-  return { accessKeyId, secretAccessKey, sessionToken }
-}
 
 export const readIniFile = async (filePath: string) => ini.parse(await fs.readFile(filePath, 'utf-8'))
 
