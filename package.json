@@ -59,7 +59,7 @@
     "src/*.{ts,css,md}": "prettier --write"
   },
   "engines": {
-    "node": ">=14.16"
+    "node": ">=18.00"
   },
   "type": "module"
 }

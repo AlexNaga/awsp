@@ -30,6 +30,12 @@ By linking it globally, it's possible to run command `awsp` in the terminal.
 npm link
 ```
 
+If you get an error `zsh: permission denied: awsp`, run the following command:
+
+```sh
+chmod +x ./dist/main.js
+```
+
 ### How to remove globally?
 
 ```sh
