@@ -16,7 +16,9 @@ import {
 import chalk from 'chalk'
 import { AwsCredentials } from './models/AwsCredentials.js'
 ;(async () => {
-  const usePrivateAccount = process.argv[2] === 'p' || process.argv[2] === 'profile'
+  const usePrivateAccount = process.argv[2] === 'p' || process.argv[2] === 'private'
+  const isDebug = process.argv[2] === 'd' || process.argv[2] === 'debug'
+
   let credentials: AwsCredentials = {
     accessKeyId: env.PRIVATE_USER_ACCESS_KEY ?? '',
     secretAccessKey: env.PRIVATE_USER_SECRET_ACCESS_KEY ?? '',
@@ -25,7 +27,7 @@ import { AwsCredentials } from './models/AwsCredentials.js'
   let selectedProfileName = 'private'
 
   if (!usePrivateAccount) {
-    const browser = new Browser()
+    const browser = new Browser(isDebug)
     await browser.init()
     await browser.authenticate()
 

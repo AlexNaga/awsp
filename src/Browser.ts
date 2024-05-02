@@ -117,8 +117,8 @@ export class Browser {
   browser!: BrowserContext
   page!: Page
 
-  constructor() {
-    this.debug = Boolean(env.DEBUG)
+  constructor(isDebug: boolean = false) {
+    this.debug = isDebug || Boolean(env.DEBUG)
   }
 
   async init() {
