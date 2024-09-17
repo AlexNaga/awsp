@@ -30,7 +30,7 @@
     "fuzzy-search": "^3.2.1",
     "ini": "^4.1.1",
     "nanospinner": "^1.1.0",
-    "playwright": "^1.41.1",
+    "playwright": "^1.47.1",
     "prompts": "^2.4.2",
     "totp-generator": "^0.0.14"
   },
@@ -57,9 +57,6 @@
       "eslint --fix"
     ],
     "src/*.{ts,css,md}": "prettier --write"
-  },
-  "engines": {
-    "node": ">=18.00"
   },
   "type": "module"
 }

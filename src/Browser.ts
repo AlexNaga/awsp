@@ -97,13 +97,17 @@ const fetchAwsProfiles = async (page: Page): Promise<AwsProfile[]> => {
 const fetchCredentials = async (page: Page, awsProfileId: string): Promise<AwsCredentials> => {
   const profilesSelector = 'account-list-cell'
   await page.getByTestId(profilesSelector).first().waitFor()
-  await page.locator(`text=${awsProfileId}`).click()
+  await page.locator(`text=${awsProfileId}`).first().click()
   await page.getByTestId('role-creation-action-button').first().click()
 
-  // we want to get the text of the next element sibling since it contains the actual values
-  const accessKeyId = await getNextElementSiblingTxt(page, 'aws_access_key_id')
-  const secretAccessKey = await getNextElementSiblingTxt(page, 'aws_secret_access_key')
-  const sessionToken = await getNextElementSiblingTxt(page, 'aws_session_token')
+  // for some weird reason we need to log the output of the following line to make it work
+  console.log(await page.getByText('aws_access_key_id=').first().textContent())
+
+  const rawCredentials = (await page.getByText('aws_access_key_id=').first().allTextContents())[0].split('\n')
+
+  const accessKeyId = rawCredentials[0].split('"')[1]
+  const secretAccessKey = rawCredentials[1].split('"')[1]
+  const sessionToken = rawCredentials[2].split('"')[1]
 
   if (!accessKeyId) throw new Error('Error: accessKeyId has no value')
   if (!secretAccessKey) throw new Error('Error: secretAccessKey has no value')
