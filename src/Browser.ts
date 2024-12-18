@@ -17,13 +17,27 @@ const blockedResourceTypes: string[] = ['image', 'media', 'font']
 const blockedFileExtensions: string[] = ['.ico', '.jpg', '.jpeg', '.png', '.svg', '.woff']
 
 const isAuthenticated = async (page: Page) => {
-  const isAuthenticatedLocator = '#header' // only visible when logged in
-
   try {
-    await page.locator(isAuthenticatedLocator).waitFor({ timeout: 2000 })
-    // eslint-disable-next-line no-empty
-  } catch (error) {}
-  return page.locator(isAuthenticatedLocator).isVisible()
+    // check if we're on a login page
+    const currentUrl = page.url()
+    if (currentUrl.includes('login.microsoftonline.com') || currentUrl.includes('signin')) {
+      return false
+    }
+
+    // quick check for header with shorter timeout
+    try {
+      await page.locator('#header').waitFor({
+        state: 'visible',
+        timeout: 3000,
+      })
+      return true
+    } catch {
+      return false
+    }
+  } catch (error) {
+    console.debug('Authentication check failed:', error)
+    return false
+  }
 }
 
 const authenticateAws = async (page: Page, email: string, password: string, mfaCode: string) => {
