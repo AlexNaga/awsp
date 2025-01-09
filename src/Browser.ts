@@ -114,18 +114,21 @@ const fetchCredentials = async (page: Page, awsProfileId: string): Promise<AwsCr
   await page.locator(`text=${awsProfileId}`).first().click()
   await page.getByTestId('role-creation-action-button').first().click()
 
-  // for some weird reason we need to log the output of the following line to make it work
-  console.log(await page.getByText('aws_access_key_id=').first().textContent())
+  // Wait for the credentials to be visible
+  await page.getByText('aws_access_key_id=').first().waitFor({ state: 'visible' })
 
-  const rawCredentials = (await page.getByText('aws_access_key_id=').first().allTextContents())[0].split('\n')
+  const rawAccessKeyId = (await page.getByText('aws_access_key_id=').first().allTextContents())[0]
+  const rawSecretAccessKey = (await page.getByText('aws_secret_access_key=').first().allTextContents())[0]
+  const rawSessionToken = (await page.getByText('aws_session_token=').first().allTextContents())[0]
 
-  const accessKeyId = rawCredentials[0].split('"')[1]
-  const secretAccessKey = rawCredentials[1].split('"')[1]
-  const sessionToken = rawCredentials[2].split('"')[1]
+  // Extract credentials
+  const accessKeyId = rawAccessKeyId?.split('"')[1]
+  const secretAccessKey = rawSecretAccessKey?.split('"')[1]
+  const sessionToken = rawSessionToken?.split('"')[1]
 
-  if (!accessKeyId) throw new Error('Error: accessKeyId has no value')
-  if (!secretAccessKey) throw new Error('Error: secretAccessKey has no value')
-  if (!sessionToken) throw new Error('Error: sessionToken has no value')
+  if (!accessKeyId) throw new Error('Error: Failed to extract accessKeyId from credentials')
+  if (!secretAccessKey) throw new Error('Error: Failed to extract secretAccessKey from credentials')
+  if (!sessionToken) throw new Error('Error: Failed to extract sessionToken from credentials')
 
   return { accessKeyId, secretAccessKey, sessionToken }
 }
