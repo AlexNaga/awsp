@@ -44,13 +44,17 @@ export const setAwsCredentials = async (
   defaultRegion: string
 ) => {
   let awsCredentials = await getAwsCredentials(defaultRegion)
-  if (!awsCredentials?.default) {
-    awsCredentials = { default: {} }
-  }
 
-  awsCredentials.default.aws_access_key_id = accessKeyId
-  awsCredentials.default.aws_secret_access_key = secretAccessKey
-  awsCredentials.default.aws_session_token = sessionToken
+  // Create default profile if it doesn't exist while preserving other profiles
+  awsCredentials = {
+    ...awsCredentials,
+    default: {
+      ...(awsCredentials?.default || {}),
+      aws_access_key_id: accessKeyId,
+      aws_secret_access_key: secretAccessKey,
+      aws_session_token: sessionToken,
+    },
+  }
 
   await fs.writeFile(AWS_CREDENTIALS_FILE_PATH, ini.stringify(awsCredentials))
 }
