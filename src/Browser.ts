@@ -127,15 +127,6 @@ const authenticateMicrosoft = async (page: Page, email: string, password: string
   } catch (error) {}
 }
 
-const getNextElementSiblingTxt = async (page: Page, elem: string) =>
-  (
-    await (await page.getByText(elem, { exact: true }).evaluateHandle((e) => e.nextElementSibling))
-      ?.asElement()
-      ?.textContent()
-  )
-    ?.replace('=', '')
-    .trim()
-
 const fetchAwsProfiles = async (page: Page): Promise<AwsProfile[]> => {
   const profilesSelector = 'account-list-cell'
   await page.getByTestId(profilesSelector).first().waitFor()
