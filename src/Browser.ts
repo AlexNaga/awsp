@@ -2,7 +2,7 @@ import path from 'path'
 import { dirname } from 'dirname-filename-esm'
 const __dirname = dirname(import.meta)
 import { BrowserContext } from 'playwright'
-import { chromium, Page } from 'playwright-core'
+import { chromium, Locator, Page } from 'playwright-core'
 import { prompt } from './helpers/input.js'
 import { AwsProfile } from './models/AwsProfile.js'
 import { AwsCredentials } from './models/AwsCredentials.js'
@@ -24,20 +24,67 @@ const isAuthenticated = async (page: Page) => {
       return false
     }
 
-    // quick check for header with shorter timeout
+    // Check for AWS SSO portal authenticated state
     try {
-      await page.locator('#header').waitFor({
-        state: 'visible',
-        timeout: 3000,
-      })
-      return true
-    } catch {
+      // Check AWS SSO portal elements
+      const portalElements = await page.locator('#portal-header *').all()
+      const hasUserEmail = await findUserEmailInElements(portalElements)
+      if (hasUserEmail) return true
+
+      // Check AWS console elements
+      return await checkAwsConsoleElements(page)
+    } catch (error) {
+      console.debug('Failed to check authentication:', error)
       return false
     }
   } catch (error) {
     console.debug('Authentication check failed:', error)
     return false
   }
+}
+
+/**
+ * Check if the user email is present in the given elements.
+ * @param elements The elements to check.
+ * @returns True if the user email is present, false otherwise.
+ */
+const findUserEmailInElements = async (elements: Locator[]): Promise<boolean> => {
+  if (!env.USER_EMAIL) return false
+
+  for (const element of elements) {
+    const text = await element.textContent()
+    if (text?.includes(env.USER_EMAIL)) {
+      return true
+    }
+  }
+
+  return false
+}
+
+/**
+ * Check if we're on the AWS console page.
+ * @param page The page to check.
+ * @returns True if we're on the AWS console page, false otherwise.
+ */
+const checkAwsConsoleElements = async (page: Page): Promise<boolean> => {
+  const awsElements = [
+    '#awsc-nav-header', // AWS navigation header
+    '#nav-usernameMenu', // User menu
+    '#aws-nav-header', // Alternative header
+    '#header', // Generic header
+  ]
+
+  for (const selector of awsElements) {
+    try {
+      if (await page.locator(selector).isVisible()) {
+        return true
+      }
+    } catch {
+      continue
+    }
+  }
+
+  return false
 }
 
 const authenticateAws = async (page: Page, email: string, password: string, mfaCode: string) => {
@@ -155,6 +202,7 @@ export class Browser {
     await this.initBlockResources()
 
     await this.page.goto(env.AWS_URL, { timeout: 60000 })
+    await this.page.waitForLoadState('networkidle') // make sure we wait for the page to be fully loaded
     spinner.success()
   }
 
