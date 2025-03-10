@@ -108,7 +108,7 @@ const authenticateMicrosoft = async (page: Page, email: string, password: string
   // handle the case when password is already filled in
   try {
     await page.locator('input[type="password"]').fill(password, { timeout: 3000 })
-    await page.keyboard.press('Enter')
+    await page.locator('input[type="submit"]').click()
     await page.waitForLoadState('networkidle')
     // eslint-disable-next-line no-empty
   } catch (error) {}
